@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #3650D0;
+  --color-primary-dark: #2b3fa6;
+  --color-secondary: #FF7B00;
+  --color-dark: #111827;
+  --font-sans: "Titillium Web", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+/* App shell tweaks */
+:root {
+  color-scheme: light;
+}
+
+body {
+  background-color: #f9fafb; /* bg-gray-50 */
+  color: #111827; /* text-gray-900 */
+}
