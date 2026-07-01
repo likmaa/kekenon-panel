@@ -46,7 +46,7 @@ function PrivateRoute({ children, roles }: { children: React.ReactNode; roles?: 
   const { user, hydrated } = useAuth()
   if (!hydrated) return <LoadingScreen />
   if (!user) return <Navigate to="/login" replace />
-  if (roles && !roles.includes(user.role)) return <Navigate to="/" replace />
+  if (roles && !roles.includes(user.role) && user.role !== 'super-admin') return <Navigate to="/" replace />
   return <>{children}</>
 }
 
@@ -54,8 +54,7 @@ function HomeRedirect() {
   const { user, hydrated } = useAuth()
   if (!hydrated) return <LoadingScreen />
   if (!user) return <Navigate to="/login" replace />
-  if (user.role === 'admin') return <Navigate to="/overview" replace />
-  if (user.role === 'developer') return <Navigate to="/overview" replace />
+  if (user.role === 'admin' || user.role === 'super-admin' || user.role === 'developer') return <Navigate to="/overview" replace />
   // Fallback for other roles if they ever log into this dashboard
   return <Navigate to="/login" replace />
 }

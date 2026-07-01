@@ -91,7 +91,7 @@ export default function PerformanceMetricsPage() {
           <button
             onClick={fetchMetrics}
             disabled={loading}
-            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 disabled:opacity-50 flex items-center gap-2"
+            className="px-4 py-2 bg-primary text-marine rounded-lg hover:bg-primary/90 disabled:opacity-50 flex items-center gap-2 font-bold"
           >
             <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
             Actualiser
@@ -105,7 +105,7 @@ export default function PerformanceMetricsPage() {
         <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm text-gray-600">Appels API</span>
-            <Zap className="text-blue-500" size={20} />
+            <Zap className="text-amber-500" size={20} />
           </div>
           <div className="text-3xl font-bold text-gray-800">{metrics?.apiCalls.toLocaleString() || 0}</div>
           <div className="text-xs text-gray-500 mt-1">Total sur la période</div>
@@ -183,18 +183,18 @@ export default function PerformanceMetricsPage() {
       </div>
 
       {/* Informations */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+      <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
         <div className="flex items-start gap-3">
-          <AlertCircle className="text-blue-600 mt-0.5" size={20} />
+          <AlertCircle className="text-amber-600 mt-0.5" size={20} />
           <div className="flex-1">
-            <h3 className="font-semibold text-blue-900 mb-1">Optimisation du polling</h3>
-            <p className="text-sm text-blue-800">
+            <h3 className="font-semibold text-amber-900 mb-1">Optimisation du polling</h3>
+            <p className="text-sm text-amber-800">
               Le système utilise maintenant principalement WebSocket pour les mises à jour en temps réel.
               Le polling n'est utilisé qu'en fallback si WebSocket n'est pas disponible, réduisant
               significativement la charge serveur et la consommation de batterie.
             </p>
             {metrics && (
-              <p className="text-sm text-blue-700 mt-2">
+              <p className="text-sm text-amber-700 mt-2">
                 <strong>Résultat :</strong> {reduction.toFixed(1)}% des communications passent par WebSocket,
                 soit une réduction de ~{apiCallsReduction.toFixed(1)}% des appels API par rapport à l'ancien système.
               </p>

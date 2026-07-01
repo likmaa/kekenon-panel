@@ -122,7 +122,7 @@ export default function DriversStatsPage() {
     }
   };
 
-  const scoreColor = (s: number) => (s >= 80 ? 'text-green-600' : s >= 60 ? 'text-blue-600' : s >= 40 ? 'text-orange-600' : 'text-red-600');
+  const scoreColor = (s: number) => (s >= 80 ? 'text-green-600' : s >= 60 ? 'text-amber-600' : s >= 40 ? 'text-orange-600' : 'text-red-600');
   const debtBadge: Record<string, { label: string; cls: string }> = {
     ok: { label: 'OK', cls: 'bg-green-100 text-green-700' },
     notify: { label: 'Niv.1', cls: 'bg-yellow-100 text-yellow-700' },
@@ -250,7 +250,7 @@ export default function DriversStatsPage() {
           </div>
           <button
             onClick={handleLoadDriverStats}
-            className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg bg-primary text-white hover:bg-primary/90"
+            className="inline-flex items-center px-4 py-2 text-sm rounded-lg bg-primary text-marine hover:bg-primary/90 font-bold"
          >
             Charger les stats chauffeur
           </button>

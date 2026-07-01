@@ -179,7 +179,7 @@ export default function UsersManagementPage() {
           </select>
           <button
             onClick={onSearch}
-            className="px-3 py-2 bg-primary text-white rounded-md text-sm"
+            className="px-3 py-2 bg-primary text-marine rounded-md text-sm font-bold"
             disabled={loading}
           >
             Rechercher
@@ -224,7 +224,7 @@ export default function UsersManagementPage() {
                         className="h-full w-full object-cover"
                       />
                     ) : (
-                      <div className="h-full w-full flex items-center justify-center bg-primary text-white text-[10px] font-bold">
+                      <div className="h-full w-full flex items-center justify-center bg-primary text-marine text-[10px] font-bold">
                         {u.name.charAt(0).toUpperCase()}
                       </div>
                     )}
@@ -248,7 +248,7 @@ export default function UsersManagementPage() {
                   {currentUser?.role === 'developer' && (
                     <button
                       onClick={() => openEdit(u)}
-                      className="px-2 py-1 text-white bg-blue-500 hover:bg-blue-600 rounded-md text-xs flex items-center gap-1"
+                      className="px-2 py-1 text-white bg-amber-500 hover:bg-amber-600 rounded-md text-xs flex items-center gap-1"
                     >
                       <Pencil size={12} />
                       Modifier
@@ -450,7 +450,7 @@ export default function UsersManagementPage() {
                 <button
                   type="submit"
                   disabled={editLoading}
-                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+                  className="px-4 py-2 bg-amber-600 text-white rounded hover:bg-amber-700 disabled:opacity-50"
                 >
                   {editLoading ? 'Enregistrement...' : 'Enregistrer'}
                 </button>

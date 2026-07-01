@@ -147,7 +147,7 @@ export default function PromotionsPage() {
                 </div>
                 <button
                     onClick={() => openModal()}
-                    className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 bg-primary text-marine rounded-lg hover:bg-primary-dark transition-colors font-bold"
                 >
                     <Plus size={18} />
                     Nouvelle Promotion
@@ -286,7 +286,7 @@ export default function PromotionsPage() {
                                 <button
                                     type="submit"
                                     disabled={isSaving}
-                                    className="flex-3 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors flex items-center justify-center gap-2 disabled:bg-gray-400"
+                                    className="flex-3 px-4 py-2 bg-primary text-marine rounded-lg hover:bg-primary-dark transition-colors flex items-center justify-center gap-2 disabled:bg-gray-400 font-bold"
                                 >
                                     {isSaving ? <Loader2 className="animate-spin" size={18} /> : null}
                                     {editingPromotion ? 'Mettre à jour' : 'Créer'}

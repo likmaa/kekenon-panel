@@ -147,7 +147,7 @@ export default function AccountsModerationPage() {
                 </div>
                 <button
                   onClick={() => setSelectedCase(item)}
-                  className="px-4 py-1.5 text-sm bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark"
+                  className="px-4 py-1.5 text-sm bg-primary text-marine rounded-lg hover:bg-primary-dark font-bold"
                 >
                   Traiter le cas
                 </button>

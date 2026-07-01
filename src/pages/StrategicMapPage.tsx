@@ -98,7 +98,7 @@ export default function StrategicMapPage() {
       {data && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <KpiPill icon={UserCheck} label="Chauffeurs disponibles" value={data.summary.available_drivers} tone="bg-green-50 text-green-600" />
-          <KpiPill icon={Car} label="Chauffeurs occupés" value={data.summary.busy_drivers} tone="bg-blue-50 text-blue-600" />
+          <KpiPill icon={Car} label="Chauffeurs occupés" value={data.summary.busy_drivers} tone="bg-amber-50 text-amber-600" />
           <KpiPill icon={MapPin} label="Demandes en attente" value={data.summary.pending_requests} tone="bg-red-50 text-red-600" />
           <KpiPill icon={Clock} label="Temps moyen d'attente" value={fmtWait(data.summary.avg_wait_seconds)} tone="bg-orange-50 text-orange-600" />
         </div>
@@ -132,7 +132,7 @@ export default function StrategicMapPage() {
             {data?.drivers.map((d) => (
               <Marker key={`drv-${d.id}`} longitude={d.lng} latitude={d.lat} anchor="center"
                 onClick={(e) => { e.originalEvent.stopPropagation(); setPopup({ kind: 'driver', data: d }); }}>
-                <div style={{ cursor: 'pointer' }} className={`w-3.5 h-3.5 rounded-full border-2 border-white shadow ${d.status === 'available' ? 'bg-green-600' : 'bg-blue-600'}`} />
+                <div style={{ cursor: 'pointer' }} className={`w-3.5 h-3.5 rounded-full border-2 border-white shadow ${d.status === 'available' ? 'bg-green-600' : 'bg-amber-600'}`} />
               </Marker>
             ))}
 
@@ -175,7 +175,7 @@ export default function StrategicMapPage() {
             <h3 className="text-sm font-bold text-gray-900 mb-3">Légende</h3>
             <ul className="space-y-2 text-sm text-gray-600">
               <li className="flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-green-600" /> Chauffeur disponible</li>
-              <li className="flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-blue-600" /> Chauffeur en course</li>
+              <li className="flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-amber-600" /> Chauffeur en course</li>
               <li className="flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-red-600" /> Demande en attente</li>
               <li className="flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-amber-400/40 border border-amber-500" /> Zone à forte demande</li>
               <li className="flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-red-400/30 border border-red-600 border-dashed" /> Zone sous-desservie</li>

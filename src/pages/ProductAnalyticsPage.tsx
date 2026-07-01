@@ -85,7 +85,7 @@ export default function ProductAnalyticsPage() {
           {[
             { label: 'Conversion globale', value: data.global_conversion_pct != null ? `${data.global_conversion_pct}%` : '—', icon: Activity, tone: 'text-green-600 bg-green-50' },
             { label: "Taux d'abandon", value: data.abandonment_pct != null ? `${data.abandonment_pct}%` : '—', icon: TrendingDown, tone: 'text-red-600 bg-red-50' },
-            { label: 'DAU', value: data.dau, icon: Users, tone: 'text-blue-600 bg-blue-50' },
+            { label: 'DAU', value: data.dau, icon: Users, tone: 'text-amber-600 bg-amber-50' },
             { label: 'WAU', value: data.wau, icon: Users, tone: 'text-indigo-600 bg-indigo-50' },
             { label: 'MAU', value: data.mau, icon: Users, tone: 'text-purple-600 bg-purple-50' },
           ].map((k, i) => {

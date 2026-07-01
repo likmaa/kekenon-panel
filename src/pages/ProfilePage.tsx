@@ -4,9 +4,13 @@ import { api } from '@/api/client';
 import { getStoragePublicUrl } from '@/utils/storagePublicUrl';
 import { User, Save, Mail, Phone, Camera, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 
+import RolesPermissionsManager from '@/components/RolesPermissionsManager';
+
 export default function ProfilePage() {
     const { user, login, token } = useAuth();
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const [activeTab, setActiveTab] = useState<'profile' | 'rbac'>('profile');
 
     const [name, setName] = useState(user?.name || '');
     const [email, setEmail] = useState(user?.email || '');
@@ -131,13 +135,38 @@ export default function ProfilePage() {
     }
 
     const displayAvatar = previewUrl || getStoragePublicUrl(photo);
+    
+    // Check if user has permission or is super-admin
+    const canManageRoles = user?.roles?.includes('super-admin') || user?.permissions?.includes('manage_roles') || user?.role === 'super-admin' || user?.role === 'developer';
 
     return (
-        <div className="max-w-2xl mx-auto text-sm sm:text-base">
-            <div className="mb-6">
-                <h1 className="text-2xl font-bold text-gray-900">Mon Profil</h1>
-                <p className="text-sm text-gray-500 mt-1">Gérez vos informations personnelles</p>
+        <div className="max-w-4xl mx-auto text-sm sm:text-base">
+            <div className="mb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                <div>
+                    <h1 className="text-2xl font-bold text-gray-900">Paramètres</h1>
+                    <p className="text-sm text-gray-500 mt-1">Gérez votre compte et les paramètres de la plateforme</p>
+                </div>
+                
+                {canManageRoles && (
+                    <div className="flex bg-gray-100 p-1 rounded-lg">
+                        <button 
+                            onClick={() => setActiveTab('profile')}
+                            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'profile' ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
+                        >
+                            Mon Profil
+                        </button>
+                        <button 
+                            onClick={() => setActiveTab('rbac')}
+                            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'rbac' ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
+                        >
+                            Rôles & Permissions
+                        </button>
+                    </div>
+                )}
             </div>
+
+            {activeTab === 'profile' ? (
+                <>
 
             {/* Avatar section */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
@@ -302,7 +331,7 @@ export default function ProfilePage() {
                     <button
                         type="submit"
                         disabled={saving}
-                        className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary/90 disabled:opacity-50 transition-colors shadow-sm min-w-[120px] justify-center"
+                        className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary text-marine text-sm hover:bg-primary/90 disabled:opacity-50 transition-colors shadow-sm min-w-[120px] justify-center font-bold"
                     >
                         {saving ? (
                             <>
@@ -318,6 +347,10 @@ export default function ProfilePage() {
                     </button>
                 </div>
             </form>
+            </>
+            ) : (
+                <RolesPermissionsManager />
+            )}
         </div>
     );
 }

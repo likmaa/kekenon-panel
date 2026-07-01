@@ -164,7 +164,7 @@ export default function DeveloperToolsPage() {
           <button
             onClick={handleClearCache}
             disabled={loading}
-            className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+            className="flex items-center gap-2 px-3 py-2 bg-amber-600 text-white rounded hover:bg-amber-700 disabled:opacity-50"
           >
             <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
             Vider le cache
@@ -194,7 +194,7 @@ export default function DeveloperToolsPage() {
       )}
 
       {/* Explication Data Info */}
-      <div className="bg-blue-50 border border-blue-100 p-4 rounded-lg flex gap-3 text-blue-800 text-sm">
+      <div className="bg-amber-50 border border-amber-100 p-4 rounded-lg flex gap-3 text-amber-800 text-sm">
         <AlertCircle size={20} className="shrink-0" />
         <div>
           <p className="font-semibold mb-1">Information sur les données</p>
@@ -214,13 +214,13 @@ export default function DeveloperToolsPage() {
             <div className="flex bg-[#1a1a1a] rounded-md p-0.5 border border-gray-600">
               <button
                 onClick={() => setLogView('server')}
-                className={`px-3 py-1 text-[10px] uppercase font-bold rounded transition-colors ${logView === 'server' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-gray-200'}`}
+                className={`px-3 py-1 text-[10px] uppercase font-bold rounded transition-colors ${logView === 'server' ? 'bg-amber-600 text-white' : 'text-gray-400 hover:text-gray-200'}`}
               >
                 Serveur (Laravel)
               </button>
               <button
                 onClick={() => setLogView('mobile')}
-                className={`px-3 py-1 text-[10px] uppercase font-bold rounded transition-colors ${logView === 'mobile' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-gray-200'}`}
+                className={`px-3 py-1 text-[10px] uppercase font-bold rounded transition-colors ${logView === 'mobile' ? 'bg-amber-600 text-white' : 'text-gray-400 hover:text-gray-200'}`}
               >
                 Mobile (APKs)
               </button>

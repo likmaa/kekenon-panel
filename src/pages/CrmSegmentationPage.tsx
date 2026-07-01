@@ -22,7 +22,7 @@ interface CrmData {
 }
 
 const segConfig: Record<Segment, { label: string; cls: string; icon: React.ElementType }> = {
-  nouveau: { label: 'Nouveau', cls: 'bg-blue-100 text-blue-700', icon: UserPlus },
+  nouveau: { label: 'Nouveau', cls: 'bg-amber-100 text-amber-700', icon: UserPlus },
   actif: { label: 'Actif', cls: 'bg-green-100 text-green-700', icon: Activity },
   vip: { label: 'VIP', cls: 'bg-purple-100 text-purple-700', icon: Star },
   inactif: { label: 'Inactif', cls: 'bg-gray-200 text-gray-600', icon: Moon },

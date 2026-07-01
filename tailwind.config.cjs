@@ -7,11 +7,17 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: '#3650D0',
-        secondary: '#FF7B00',
+        primary: '#F9A825',
+        'primary-light': '#FDD835',
+        secondary: '#FFD700',
+        marine: '#0D47A1',
+        'brand-green': '#37BD6B',
       },
       borderColor: {
         DEFAULT: '#e5e7eb',
+      },
+      fontFamily: {
+        sans: ['Rajdhani', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
     },
   },

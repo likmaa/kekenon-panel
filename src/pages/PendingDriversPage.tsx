@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Check, X, Eye, FileText, XCircle, UserCheck } from 'lucide-react';
+import { Check, X, Eye, FileText, UserCheck, Inbox, XCircle } from 'lucide-react';
 import { api } from '@/api/client';
 import { getStoragePublicUrl } from '@/utils/storagePublicUrl';
 
@@ -39,7 +39,6 @@ interface DriverProfileDetails {
   };
 }
 
-// Le composant StatusBadge reste le même
 const StatusBadge = ({ status }: { status: DriverStatus | string }) => {
   const statusStyles: Record<DriverStatus | 'default', string> = {
     pending: 'bg-yellow-100 text-yellow-800 border border-yellow-200',
@@ -58,119 +57,15 @@ const StatusBadge = ({ status }: { status: DriverStatus | string }) => {
   );
 };
 
-const DriverDetailsModal = ({ driver, onClose, onAction }: { driver: Driver | null; onClose: () => void; onAction: (id: number, status: 'approved' | 'rejected') => void }) => {
-  const [details, setDetails] = useState<DriverProfileDetails | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  useEffect(() => {
-    if (!driver) return;
-
-    const run = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await api.get(`/api/admin/drivers/${driver.id}/profile`);
-        setDetails(res.data as DriverProfileDetails);
-      } catch (e: any) {
-        setError(e?.response?.data?.message || "Erreur de chargement du dossier du chauffeur");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    run();
-  }, [driver?.id]);
-
-  if (!driver) return null;
-
-  const profileStatus = details?.profile?.status ?? driver.status;
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
-        <header className="flex items-center justify-between p-4 border-b border-gray-200 flex-shrink-0">
-          <h3 className="text-lg font-bold text-gray-900">Dossier du Chauffeur : {driver.name}</h3>
-          <button onClick={onClose} className="p-1 rounded-full text-gray-500 hover:bg-gray-100 hover:text-gray-800"><XCircle size={24} /></button>
-        </header>
-        <div className="p-6 flex-1 overflow-y-auto space-y-6">
-          {loading && <p className="text-sm text-gray-500">Chargement du dossier...</p>}
-          {error && <p className="text-sm text-red-600">{error}</p>}
-
-          {details && (
-            <>
-              <section className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
-                <div className="flex flex-col items-center md:items-start gap-2">
-                  <div className="h-20 w-20 rounded-full overflow-hidden bg-gray-100 border border-gray-200">
-                    {details.profile?.photo || details.user.photo ? (
-                      <img
-                        src={getStoragePublicUrl(details.profile?.photo || details.user.photo) || ''}
-                        alt={details.user.name}
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <img
-                        src={`https://ui-avatars.com/api/?name=${encodeURIComponent(details.user.name)}&background=random`}
-                        alt={details.user.name}
-                        className="h-full w-full object-cover"
-                      />
-                    )}
-                  </div>
-                </div>
-                <div className="md:col-span-1">
-                  <h4 className="text-sm font-semibold text-gray-700 mb-2">Informations personnelles</h4>
-                  <p className="text-sm text-gray-800"><span className="font-medium">Nom :</span> {details.user.name}</p>
-                  <p className="text-sm text-gray-800"><span className="font-medium">Téléphone :</span> {details.user.phone}</p>
-                  <p className="text-sm text-gray-800"><span className="font-medium">Rôle actuel :</span> {details.user.role || '—'}</p>
-                </div>
-                <div className="md:col-span-1">
-                  <h4 className="text-sm font-semibold text-gray-700 mb-2">Profil chauffeur</h4>
-                  <p className="text-sm text-gray-800 flex items-center gap-2"><span className="font-medium">Statut :</span> <StatusBadge status={profileStatus} /></p>
-                  <p className="text-sm text-gray-800"><span className="font-medium">Immatriculation :</span> {details.profile?.vehicle_number || details.user.vehicle_number || '—'}</p>
-                  <p className="text-sm text-gray-800"><span className="font-medium">Droit Taxi :</span> {details.profile?.license_number || details.user.license_number || '—'}</p>
-                </div>
-              </section>
-
-              {details.profile?.documents && (
-                <section>
-                  <h4 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2"><FileText size={16} /> Documents transmis</h4>
-                  <div className="bg-gray-50 rounded-lg p-3 border border-gray-200 text-sm text-gray-800 space-y-1">
-                    {Object.entries(details.profile.documents).map(([key, value]) => (
-                      <p key={key}><span className="font-medium">{key} :</span> {String(value)}</p>
-                    ))}
-                  </div>
-                </section>
-              )}
-
-              {details.profile && (
-                <section className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-gray-500">
-                  <p><span className="font-medium">Créé le :</span> {details.profile.created_at ? new Date(details.profile.created_at).toLocaleString('fr-FR') : '—'}</p>
-                  <p><span className="font-medium">Mis à jour le :</span> {details.profile.updated_at ? new Date(details.profile.updated_at).toLocaleString('fr-FR') : '—'}</p>
-                </section>
-              )}
-            </>
-          )}
-        </div>
-        <footer className="flex justify-end items-center gap-3 p-4 bg-gray-50 border-t border-gray-200 flex-shrink-0">
-          <button onClick={onClose} className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border rounded-lg hover:bg-gray-50">Fermer</button>
-          {profileStatus === 'pending' && (
-            <>
-              <button onClick={() => onAction(driver.id, 'rejected')} className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 flex items-center gap-2"><X size={16} /> Rejeter</button>
-              <button onClick={() => onAction(driver.id, 'approved')} className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 flex items-center gap-2"><Check size={16} /> Approuver</button>
-            </>
-          )}
-        </footer>
-      </div>
-    </div>
-  );
-};
-
-
 export default function PendingDriversPage() {
-  const [isModalOpen, setModalOpen] = useState(false);
-  const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null);
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null);
+  const [details, setDetails] = useState<DriverProfileDetails | null>(null);
+  const [loadingDetails, setLoadingDetails] = useState(false);
+  const [detailsError, setDetailsError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchDrivers = async () => {
@@ -178,7 +73,6 @@ export default function PendingDriversPage() {
       setError(null);
       try {
         const res = await api.get('/api/admin/drivers/pending');
-        // L'API renvoie un paginator Laravel, on récupère data ou items
         const data = (res.data?.data ?? res.data) as any[];
         const mapped: Driver[] = data.map((row) => ({
           id: row.id,
@@ -202,100 +96,245 @@ export default function PendingDriversPage() {
     fetchDrivers();
   }, []);
 
-  // --- LOGIQUE DE FILTRAGE ---
-  // On filtre les données pour ne garder que les chauffeurs avec le statut 'pending'
-  const pendingDrivers = drivers.filter(driver => driver.status === 'pending');
-  // -------------------------
+  // Fetch driver details when selected
+  useEffect(() => {
+    if (!selectedDriver) {
+      setDetails(null);
+      return;
+    }
 
-  const handleAction = (id: number, status: 'approved' | 'rejected') => {
-    const run = async () => {
+    const fetchDetails = async () => {
+      setLoadingDetails(true);
+      setDetailsError(null);
       try {
-        await api.patch(`/api/admin/drivers/${id}/status`, { status });
-        setDrivers((prev) => prev.map((d) => (d.id === id ? { ...d, status } : d)));
+        const res = await api.get(`/api/admin/drivers/${selectedDriver.id}/profile`);
+        setDetails(res.data as DriverProfileDetails);
       } catch (e: any) {
-        alert(e?.response?.data?.message || "Impossible de mettre à jour le statut du chauffeur");
+        setDetailsError(e?.response?.data?.message || "Erreur de chargement du dossier du chauffeur");
       } finally {
-        setModalOpen(false);
+        setLoadingDetails(false);
       }
     };
 
-    run();
+    fetchDetails();
+  }, [selectedDriver?.id]);
+
+  const pendingDrivers = drivers.filter(driver => driver.status === 'pending');
+
+  const handleAction = async (id: number, status: 'approved' | 'rejected') => {
+    try {
+      await api.patch(`/api/admin/drivers/${id}/status`, { status });
+      setDrivers((prev) => prev.filter((d) => d.id !== id));
+      if (selectedDriver?.id === id) {
+        setSelectedDriver(null);
+        setDetails(null);
+      }
+    } catch (e: any) {
+      alert(e?.response?.data?.message || "Impossible de mettre à jour le statut du chauffeur");
+    }
   };
 
-  const handleViewDetails = (driver: Driver) => {
-    setSelectedDriver(driver);
-    setModalOpen(true);
+  const formatDocName = (key: string) => {
+    switch (key) {
+      case 'id_card': return "Pièce d'identité";
+      case 'vehicle_photo': return "Photo du véhicule";
+      case 'driver_license': return "Permis de conduire";
+      default: return key;
+    }
   };
+
+  const profileStatus = details?.profile?.status ?? selectedDriver?.status ?? 'pending';
 
   return (
-    <>
-      <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-        <header className="mb-4">
-          <h2 className="text-xl font-bold text-gray-900">Chauffeurs en Attente de Validation</h2>
-          <p className="text-sm text-gray-500 mt-1">Examinez les dossiers pour approuver ou rejeter les nouvelles candidatures.</p>
+    <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-6rem)]">
+      
+      {/* ---------------- MASTERS (LISTE) ---------------- */}
+      <div className="w-full lg:w-1/3 flex flex-col bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex-shrink-0">
+        <header className="p-5 border-b border-gray-100 bg-gray-50/50">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-bold text-[#0D47A1] font-rajdhani">Dossiers en attente</h2>
+            <span className="bg-yellow-100 text-yellow-800 px-2.5 py-1 rounded-full text-xs font-bold border border-yellow-200">
+              {pendingDrivers.length}
+            </span>
+          </div>
+          <p className="text-xs text-gray-500 mt-1">Nouveaux chauffeurs à valider</p>
         </header>
 
-        {loading && <p className="text-sm text-gray-500">Chargement des chauffeurs en attente...</p>}
-        {error && <p className="text-sm text-red-600 mb-2">{error}</p>}
-
-        {/* --- GESTION DE L'ÉTAT VIDE --- */}
-        {!loading && pendingDrivers.length === 0 ? (
-          <div className="text-center p-10 bg-gray-50 rounded-lg border-2 border-dashed">
-            <UserCheck size={48} className="mx-auto text-green-500" />
-            <h3 className="mt-4 text-lg font-semibold text-gray-800">Aucun dossier en attente</h3>
-            <p className="mt-1 text-sm text-gray-500">Excellent travail ! Toutes les candidatures ont été traitées.</p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full bg-white">
-              <thead className="bg-gray-50">
-                <tr>
-                  {['Chauffeur', 'Date de soumission', 'Actions'].map((header) => (
-                    <th key={header} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {header}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {pendingDrivers.map((driver: Driver) => (
-                  <tr key={driver.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-3">
-                        <img className="h-10 w-10 rounded-full" src={`https://ui-avatars.com/api/?name=${driver.name.replace(' ', '+')}&background=random`} alt="" />
-                        <div>
-                          <div className="text-sm font-medium text-gray-900">{driver.name}</div>
-                          <div className="text-sm text-gray-500">{driver.email}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(driver.submission_date).toLocaleDateString('fr-FR')}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex items-center gap-2">
-                        <button onClick={() => handleViewDetails(driver)} className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
-                          <Eye size={14} />
-                          Voir Dossier
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-        {/* --------------------------------- */}
+        <div className="flex-1 overflow-y-auto p-3 space-y-2">
+          {loading && (
+            <div className="flex flex-col items-center justify-center py-12">
+               <div className="w-6 h-6 border-2 border-[#FDD835] border-t-[#0D47A1] rounded-full animate-spin"></div>
+            </div>
+          )}
+          {error && <p className="text-xs text-red-600 p-2 bg-red-50 rounded-lg">{error}</p>}
+          
+          {!loading && pendingDrivers.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full text-center p-6 text-gray-500">
+              <UserCheck size={40} className="text-green-400 mb-3" />
+              <p className="text-sm font-semibold text-gray-700">Aucun dossier</p>
+              <p className="text-xs mt-1">Vous êtes à jour !</p>
+            </div>
+          ) : (
+            pendingDrivers.map((driver) => {
+              const isSelected = selectedDriver?.id === driver.id;
+              return (
+                <button
+                  key={driver.id}
+                  onClick={() => setSelectedDriver(driver)}
+                  className={`w-full text-left p-4 rounded-xl border transition-all ${
+                    isSelected 
+                      ? 'bg-blue-50 border-blue-200 shadow-sm ring-1 ring-blue-500' 
+                      : 'bg-white border-gray-100 hover:border-gray-200 hover:bg-gray-50'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <img 
+                      className="h-10 w-10 rounded-full border border-gray-200" 
+                      src={`https://ui-avatars.com/api/?name=${driver.name.replace(' ', '+')}&background=random`} 
+                      alt="" 
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-sm font-bold truncate ${isSelected ? 'text-blue-900' : 'text-gray-900'}`}>
+                        {driver.name}
+                      </p>
+                      <p className="text-xs text-gray-500 truncate">{driver.phone}</p>
+                    </div>
+                  </div>
+                  <div className="mt-3 flex items-center justify-between">
+                    <span className="text-[10px] text-gray-400 font-medium">
+                      {new Date(driver.submission_date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}
+                    </span>
+                    <span className="text-[10px] font-bold text-[#0D47A1] group-hover:underline">Voir détails &rarr;</span>
+                  </div>
+                </button>
+              );
+            })
+          )}
+        </div>
       </div>
 
-      {isModalOpen && (
-        <DriverDetailsModal
-          driver={selectedDriver}
-          onClose={() => setModalOpen(false)}
-          onAction={handleAction}
-        />
-      )}
-    </>
+      {/* ---------------- DETAILS (DOSSIER) ---------------- */}
+      <div className="w-full lg:w-2/3 flex flex-col bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        {!selectedDriver ? (
+          <div className="flex-1 flex flex-col items-center justify-center p-12 text-center text-gray-400">
+            <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-4 border border-gray-100">
+              <Inbox size={40} className="text-gray-300" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-700 font-rajdhani">Aucun dossier sélectionné</h3>
+            <p className="text-sm mt-2 max-w-sm">Sélectionnez un chauffeur dans la liste de gauche pour examiner ses informations et documents.</p>
+          </div>
+        ) : (
+          <div className="flex flex-col h-full">
+            <header className="p-5 border-b border-gray-100 flex items-center justify-between flex-shrink-0 bg-white">
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900 font-rajdhani">Examen du dossier</h3>
+                <p className="text-sm text-gray-500">Validation de {selectedDriver.name}</p>
+              </div>
+              <div className="flex gap-2">
+                 <button onClick={() => handleAction(selectedDriver.id, 'rejected')} className="px-4 py-2 text-sm font-bold text-red-600 bg-red-50 border border-red-200 rounded-xl hover:bg-red-100 transition-all flex items-center gap-2">
+                    <X size={16} /> Rejeter
+                 </button>
+                 <button onClick={() => handleAction(selectedDriver.id, 'approved')} className="px-4 py-2 text-sm font-bold text-marine bg-primary rounded-xl hover:opacity-90 shadow-md shadow-primary/20 transition-all flex items-center gap-2">
+                    <Check size={16} /> Approuver
+                 </button>
+              </div>
+            </header>
+
+            <div className="flex-1 overflow-y-auto p-6 space-y-8 bg-gray-50/30">
+              {loadingDetails && (
+                <div className="flex flex-col items-center justify-center py-10">
+                   <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              )}
+              {detailsError && (
+                <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3 text-red-700">
+                  <XCircle size={20} />
+                  <p className="text-sm font-medium">{detailsError}</p>
+                </div>
+              )}
+
+              {details && !loadingDetails && (
+                <>
+                  <section className="flex flex-col md:flex-row gap-6 items-start bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                    <div className="flex-shrink-0">
+                      <div className="h-24 w-24 rounded-full overflow-hidden bg-gray-100 border-4 border-white shadow-md">
+                        {details.profile?.photo || details.user.photo ? (
+                          <img
+                            src={getStoragePublicUrl(details.profile?.photo || details.user.photo) || ''}
+                            alt={details.user.name}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <img
+                            src={`https://ui-avatars.com/api/?name=${encodeURIComponent(details.user.name)}&background=random`}
+                            alt={details.user.name}
+                            className="h-full w-full object-cover"
+                          />
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <h4 className="text-xs uppercase tracking-wider font-bold text-gray-400 mb-1">Informations personnelles</h4>
+                        <p className="text-lg text-gray-900 font-bold">{details.user.name}</p>
+                        <p className="text-sm text-gray-600">{details.user.phone}</p>
+                        <div className="mt-2">
+                          <StatusBadge status={profileStatus} />
+                        </div>
+                      </div>
+                      <div>
+                        <h4 className="text-xs uppercase tracking-wider font-bold text-gray-400 mb-1">Informations véhicule</h4>
+                        <div className="space-y-1 mt-1">
+                          <p className="text-sm"><span className="text-gray-500">Immatriculation :</span> <span className="font-semibold text-gray-900">{details.profile?.vehicle_number || details.user.vehicle_number || '—'}</span></p>
+                          <p className="text-sm"><span className="text-gray-500">Droit Taxi :</span> <span className="font-semibold text-gray-900">{details.profile?.license_number || details.user.license_number || '—'}</span></p>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+
+                  {/* Section Documents */}
+                  {details.profile?.documents && Object.keys(details.profile.documents).length > 0 && (
+                    <section>
+                      <h4 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2 font-rajdhani">
+                        <FileText size={18} className="text-[#0D47A1]" /> 
+                        Documents fournis
+                      </h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {Object.entries(details.profile.documents).map(([key, docInfo]: [string, any]) => (
+                          <div key={key} className="bg-white rounded-xl border border-gray-200 overflow-hidden flex flex-col shadow-sm">
+                            <div className="px-4 py-3 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
+                               <span className="font-bold text-sm text-gray-800">{formatDocName(key)}</span>
+                               <span className={`px-2 py-0.5 text-[10px] uppercase font-bold rounded-full ${docInfo.status === 'pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-200 text-gray-600'}`}>
+                                 {docInfo.status || 'Reçu'}
+                               </span>
+                            </div>
+                            <div className="p-4 flex-1 flex flex-col items-center justify-center bg-gray-50/50">
+                              {docInfo.path ? (
+                                 <a href={getStoragePublicUrl(docInfo.path) || '#'} target="_blank" rel="noreferrer" className="block w-full cursor-zoom-in relative group">
+                                    <img 
+                                      src={getStoragePublicUrl(docInfo.path) || ''} 
+                                      alt={key} 
+                                      className="max-h-56 w-full object-contain rounded-lg border border-gray-200 transition-transform group-hover:scale-[1.02] bg-white shadow-sm"
+                                    />
+                                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-lg flex items-center justify-center">
+                                       <Eye className="text-white opacity-0 group-hover:opacity-100 drop-shadow-lg" size={36} />
+                                    </div>
+                                 </a>
+                              ) : (
+                                 <p className="text-sm text-gray-400 italic">Format non pris en charge</p>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

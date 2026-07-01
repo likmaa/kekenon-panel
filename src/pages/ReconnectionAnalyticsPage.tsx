@@ -103,7 +103,7 @@ export default function ReconnectionAnalyticsPage() {
           <button
             onClick={fetchStats}
             disabled={loading}
-            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 disabled:opacity-50 flex items-center gap-2"
+            className="px-4 py-2 bg-primary text-marine rounded-lg hover:bg-primary/90 disabled:opacity-50 flex items-center gap-2 font-bold"
           >
             <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
             Actualiser
@@ -117,7 +117,7 @@ export default function ReconnectionAnalyticsPage() {
         <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm text-gray-600">Total de reconnexions</span>
-            <TrendingUp className="text-blue-500" size={20} />
+            <TrendingUp className="text-amber-500" size={20} />
           </div>
           <div className="text-3xl font-bold text-gray-800">{stats?.total.toLocaleString() || 0}</div>
           <div className="text-xs text-gray-500 mt-1">Sur la période sélectionnée</div>
@@ -165,14 +165,14 @@ export default function ReconnectionAnalyticsPage() {
         <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">Répartition par application</h2>
           <div className="grid grid-cols-2 gap-4">
-            <div className="p-4 bg-blue-50 rounded-lg">
+            <div className="p-4 bg-amber-50 rounded-lg">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium text-gray-700">App Chauffeur</span>
-                <span className="text-lg font-bold text-blue-600">{stats.byAppType.driver}</span>
+                <span className="text-lg font-bold text-amber-600">{stats.byAppType.driver}</span>
               </div>
-              <div className="w-full bg-blue-200 rounded-full h-2">
+              <div className="w-full bg-amber-200 rounded-full h-2">
                 <div
-                  className="bg-blue-600 h-2 rounded-full"
+                  className="bg-amber-600 h-2 rounded-full"
                   style={{
                     width: `${(stats.byAppType.driver / stats.total) * 100}%`,
                   }}
@@ -227,7 +227,7 @@ export default function ReconnectionAnalyticsPage() {
                       <span
                         className={`px-2 py-1 rounded text-xs font-medium ${
                           event.app_type === 'driver'
-                            ? 'bg-blue-100 text-blue-800'
+                            ? 'bg-amber-100 text-amber-800'
                             : 'bg-green-100 text-green-800'
                         }`}
                       >
@@ -262,18 +262,18 @@ export default function ReconnectionAnalyticsPage() {
       )}
 
       {/* Informations */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+      <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
         <div className="flex items-start gap-3">
-          <AlertCircle className="text-blue-600 mt-0.5" size={20} />
+          <AlertCircle className="text-amber-600 mt-0.5" size={20} />
           <div className="flex-1">
-            <h3 className="font-semibold text-blue-900 mb-1">Gestion automatique des reconnexions</h3>
-            <p className="text-sm text-blue-800">
+            <h3 className="font-semibold text-amber-900 mb-1">Gestion automatique des reconnexions</h3>
+            <p className="text-sm text-amber-800">
               Le système détecte automatiquement les pertes de connexion et synchronise les données
               dès que la connexion est rétablie. Les courses peuvent continuer en mode hors ligne
               et toutes les données sont sauvegardées localement.
             </p>
             {stats && (
-              <p className="text-sm text-blue-700 mt-2">
+              <p className="text-sm text-amber-700 mt-2">
                 <strong>Performance :</strong> {stats.successRate.toFixed(1)}% des reconnexions
                 se synchronisent avec succès en moyenne en {stats.averageSyncDuration.toFixed(0)}ms.
               </p>

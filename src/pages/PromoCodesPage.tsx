@@ -138,7 +138,7 @@ export default function PromoCodesPage() {
                 <h1 className="text-2xl font-bold text-gray-900">Codes Promos (Réductions)</h1>
                 <button
                     onClick={() => openModal()}
-                    className="flex items-center space-x-2 rounded-lg bg-primary px-4 py-2 text-white hover:bg-primary/90"
+                    className="flex items-center space-x-2 rounded-lg bg-primary px-4 py-2 text-marine font-bold hover:bg-primary/90"
                 >
                     <Plus className="h-5 w-5" />
                     <span>Nouveau Code Promo</span>
@@ -192,7 +192,7 @@ export default function PromoCodesPage() {
                                     )}
                                 </td>
                                 <td className="whitespace-nowrap px-6 py-4">
-                                    <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
+                                    <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
                                         {promo.type === 'percentage' ? `${promo.value}%` : `${promo.value} F CFA`}
                                     </span>
                                 </td>
@@ -348,7 +348,7 @@ export default function PromoCodesPage() {
                                 <button
                                     type="submit"
                                     disabled={isSaving}
-                                    className="inline-flex justify-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 focus:outline-none disabled:opacity-50"
+                                    className="inline-flex justify-center rounded-lg bg-primary px-4 py-2 text-sm font-bold text-marine hover:bg-primary/90 focus:outline-none disabled:opacity-50"
                                 >
                                     {isSaving ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : null}
                                     {editingPromo ? 'Mettre à jour' : 'Créer'}

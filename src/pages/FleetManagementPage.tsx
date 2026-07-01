@@ -287,7 +287,7 @@ export default function FleetManagementPage() {
               <option value="suspended">Suspendu</option>
               <option value="pending">En attente</option>
             </select>
-            <button className="flex items-center justify-center gap-2 w-full md:w-auto px-4 py-2 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors">
+            <button className="flex items-center justify-center gap-2 w-full md:w-auto px-4 py-2 bg-primary text-marine rounded-lg hover:bg-primary-dark transition-colors font-bold">
               <PlusCircle size={18} />
               <span className="hidden sm:inline">Ajouter un chauffeur</span>
             </button>
@@ -364,7 +364,7 @@ export default function FleetManagementPage() {
           <button
             onClick={handleLoadDriverDocuments}
             disabled={driverDocsLoading}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 disabled:opacity-50"
+            className="px-4 py-2 bg-primary text-marine rounded-lg text-sm font-bold hover:opacity-90 disabled:opacity-50"
           >
             {driverDocsLoading ? 'Chargement...' : 'Charger les documents'}
           </button>

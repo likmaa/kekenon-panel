@@ -97,9 +97,9 @@ type StatCardProps = {
   onClick?: () => void;
 };
 
-const StatCard: React.FC<StatCardProps> = ({ title, value, icon: Icon, change, changeType, description, colorTheme = 'blue', onClick }) => {
+const StatCard: React.FC<StatCardProps> = ({ title, value, icon: Icon, change, changeType, description, colorTheme = 'orange', onClick }) => {
   const themeStyles = {
-    blue: 'bg-blue-50 text-blue-600',
+    blue: 'bg-amber-50 text-amber-600',
     green: 'bg-green-50 text-green-600',
     orange: 'bg-orange-50 text-orange-600',
     red: 'bg-red-50 text-red-600',
@@ -273,21 +273,21 @@ export default function DashboardOverview() {
           {/* 🌟 North Star Metric (20.14) */}
           <div
             onClick={() => navigate('/cockpit/rides/completed')}
-            className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white p-6 rounded-2xl shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer hover:brightness-110 transition-all">
+            className="bg-primary text-gray-900 p-6 rounded-2xl shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer hover:brightness-110 transition-all">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-white/15 flex items-center justify-center">
+              <div className="w-14 h-14 rounded-2xl bg-black/10 flex items-center justify-center">
                 <Target size={28} />
               </div>
               <div>
-                <p className="text-sm font-medium text-indigo-100 flex items-center gap-2">
+                <p className="text-sm font-bold text-gray-800 flex items-center gap-2">
                   North Star · Courses terminées aujourd'hui
                 </p>
-                <p className="text-4xl font-black mt-1">{overview.today_completed_rides}</p>
+                <p className="text-4xl font-black mt-1 text-black">{overview.today_completed_rides}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <span className={`flex items-center font-bold text-sm px-3 py-1.5 rounded-full ${
-                nsDelta.type === 'positive' ? 'bg-white/20 text-white' : nsDelta.type === 'negative' ? 'bg-red-900/30 text-red-100' : 'bg-white/10 text-indigo-100'
+                nsDelta.type === 'positive' ? 'bg-black/10 text-gray-900' : nsDelta.type === 'negative' ? 'bg-red-500/20 text-red-900' : 'bg-black/5 text-gray-800'
               }`}>
                 {nsDelta.type === 'positive' && <ArrowUpRight size={16} className="mr-1" />}
                 {nsDelta.type === 'negative' && <ArrowDownRight size={16} className="mr-1" />}
@@ -316,7 +316,7 @@ export default function DashboardOverview() {
               onClick={() => setRevenueOpen(true)}
             />
             <StatCard title="Chauffeurs connectés" value={overview.online_drivers} icon={Users} colorTheme="orange" />
-            <StatCard title="Courses en cours" value={overview.active_rides} icon={CircleDot} colorTheme="blue" />
+            <StatCard title="Courses en cours" value={overview.active_rides} icon={CircleDot} colorTheme="orange" />
             <StatCard title="Utilisateurs actifs" value={overview.active_users_30d} icon={UserCheck} description="30 derniers jours" colorTheme="purple" />
             <StatCard
               title="Taux d'acceptation"
@@ -336,7 +336,7 @@ export default function DashboardOverview() {
               value={fmtDuration(overview.avg_assignment_seconds)}
               icon={Timer}
               description="aujourd'hui"
-              colorTheme="blue"
+              colorTheme="orange"
             />
           </div>
         </>
@@ -352,7 +352,7 @@ export default function DashboardOverview() {
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
             {[
-              { icon: Timer, label: "Temps moyen d'attribution", value: fmtDuration(dispatch.avg_assignment_seconds), tone: 'text-blue-600 bg-blue-50' },
+              { icon: Timer, label: "Temps moyen d'attribution", value: fmtDuration(dispatch.avg_assignment_seconds), tone: 'text-amber-600 bg-amber-50' },
               { icon: Hourglass, label: 'Temps moyen de prise en charge', value: fmtDuration(dispatch.avg_pickup_seconds), tone: 'text-indigo-600 bg-indigo-50' },
               { icon: Hand, label: 'Courses refusées', value: dispatch.refused_rides, tone: 'text-orange-600 bg-orange-50', category: 'refused' },
               { icon: AlertTriangle, label: 'Courses expirées (timeout)', value: dispatch.expired_rides, tone: 'text-amber-600 bg-amber-50', category: 'expired' },

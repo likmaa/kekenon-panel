@@ -62,7 +62,7 @@ const TransactionStatusBadge = ({ status }: { status: TransactionStatus }) => {
   const config = {
     completed: 'bg-green-100 text-green-800',
     refunded: 'bg-yellow-100 text-yellow-800',
-    pending: 'bg-blue-100 text-blue-800',
+    pending: 'bg-amber-100 text-amber-800',
   };
   return <span className={`px-2.5 py-0.5 text-xs font-medium rounded-full ${config[status]}`}>{status.charAt(0).toUpperCase() + status.slice(1)}</span>;
 };
@@ -281,7 +281,7 @@ export default function FinancePage() {
               { label: 'CA semaine', value: finOverview.ca_week, tone: 'text-green-700' },
               { label: 'CA mois', value: finOverview.ca_month, tone: 'text-green-700' },
               { label: 'Paiements espèces', value: finOverview.cash_payments, tone: 'text-gray-900' },
-              { label: 'Paiements digitaux', value: finOverview.digital_payments, tone: 'text-blue-700' },
+              { label: 'Paiements digitaux', value: finOverview.digital_payments, tone: 'text-amber-700' },
               { label: 'Paiements chauffeurs', value: finOverview.driver_payments, tone: 'text-indigo-700' },
               { label: 'Dette globale', value: finOverview.global_debt, tone: finOverview.global_debt > 0 ? 'text-red-600' : 'text-gray-900' },
             ].map((k, i) => (
@@ -344,7 +344,7 @@ export default function FinancePage() {
                       <td className="px-3 py-2 text-emerald-700">{r.commission.toLocaleString('fr-FR')} F</td>
                       <td className="px-3 py-2 text-indigo-700">{r.driver_earnings.toLocaleString('fr-FR')} F</td>
                       <td className="px-3 py-2 text-gray-600">{r.cash.toLocaleString('fr-FR')} F</td>
-                      <td className="px-3 py-2 text-blue-700">{r.digital.toLocaleString('fr-FR')} F</td>
+                      <td className="px-3 py-2 text-amber-700">{r.digital.toLocaleString('fr-FR')} F</td>
                     </tr>
                   ))}
                 </tbody>
@@ -449,7 +449,7 @@ export default function FinancePage() {
               <button
                 onClick={handleSaveComm}
                 disabled={commSaving}
-                className="w-full px-4 py-2 bg-primary text-white font-bold rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50"
+                className="w-full px-4 py-2 bg-primary text-marine font-bold rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50"
               >
                 {commSaving ? "Enregistrement..." : "Sauvegarder"}
               </button>
@@ -509,7 +509,7 @@ export default function FinancePage() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{tx.driver}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-right text-gray-900">{tx.amount.toFixed(2)} FCFA</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-green-600">{tx.commission.toFixed(2)} FCFA</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-blue-600">{tx.driver_payout.toFixed(2)} FCFA</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-amber-600">{tx.driver_payout.toFixed(2)} FCFA</td>
                   <td className="px-6 py-4 whitespace-nowrap"><TransactionStatusBadge status={tx.status} /></td>
                 </tr>
               ))}

@@ -159,7 +159,7 @@ export default function PassengerInboxDevPage() {
             type="button"
             onClick={() => void loadList()}
             disabled={loading}
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white font-semibold rounded-xl hover:opacity-90 disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-marine rounded-xl hover:opacity-90 disabled:opacity-50 font-bold"
           >
             {loading ? <Loader2 className="animate-spin" size={18} /> : <RefreshCw size={18} />}
             Charger la liste
@@ -337,7 +337,7 @@ export default function PassengerInboxDevPage() {
                   type="button"
                   onClick={() => void saveEdit()}
                   disabled={saving}
-                  className="px-4 py-2.5 rounded-xl bg-primary text-white font-semibold disabled:opacity-50"
+                  className="px-4 py-2.5 rounded-xl bg-primary text-marine disabled:opacity-50 font-bold"
                 >
                   Enregistrer
                 </button>

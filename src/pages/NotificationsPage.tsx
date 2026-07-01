@@ -42,11 +42,11 @@ const ChannelSelector: React.FC<ChannelSelectorProps> = ({ icon: Icon, label, se
         }`}
     >
       <div className={`absolute top-4 right-4 transition-transform duration-200 ${selected ? 'scale-100' : 'scale-0'}`}>
-        <div className="bg-primary text-white p-1 rounded-full">
+        <div className="bg-primary text-marine p-1 rounded-full font-bold">
           <Check size={12} strokeWidth={3} />
         </div>
       </div>
-      <div className={`mb-3 inline-flex p-2 rounded-lg transition-colors ${selected ? 'bg-primary text-white' : 'bg-gray-100 text-gray-500 group-hover:bg-gray-200'
+      <div className={`mb-3 inline-flex p-2 rounded-lg transition-colors ${selected ? 'bg-primary text-marine' : 'bg-gray-100 text-gray-500 group-hover:bg-gray-200'
         }`}>
         <Icon size={20} />
       </div>
@@ -499,7 +499,7 @@ export default function NotificationsPage() {
                   type="button"
                   onClick={handleSaveCampaign}
                   disabled={savingCampaign}
-                  className="w-full py-4 bg-primary hover:bg-primary-dark text-white font-bold rounded-xl shadow-lg shadow-primary/30 transform active:scale-[0.99] transition-all flex items-center justify-center gap-3 text-lg disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="w-full py-4 bg-primary hover:bg-primary-dark text-marine font-bold rounded-xl shadow-lg shadow-primary/30 transform active:scale-[0.99] transition-all flex items-center justify-center gap-3 text-lg disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   <span>
                     {savingCampaign

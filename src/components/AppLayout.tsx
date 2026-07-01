@@ -10,7 +10,7 @@ import {
   CreditCard, Megaphone, Settings, MapPin
 } from 'lucide-react';
 
-import Img from '@/assets/LOGO_OR.png';
+import Img from '@/assets/logo_Com.png';
 
 /* ── Single nav item ─────────────────────────────────────── */
 function NavItem({ to, label, icon, onClick, nested, end }: {
@@ -25,7 +25,7 @@ function NavItem({ to, label, icon, onClick, nested, end }: {
         `flex items-center gap-3 rounded-lg text-sm font-medium transition-all duration-200
         ${nested ? 'pl-10 pr-3 py-2' : 'px-3 py-2.5'}
         ${isActive
-          ? 'bg-gradient-to-r from-primary/10 to-primary/5 text-primary border-l-3 border-primary'
+          ? 'bg-gradient-to-r from-primary/20 to-primary/5 text-marine font-bold border-l-4 border-primary'
           : 'text-gray-600 hover:bg-gray-100/80 hover:text-gray-900'
         }`
       }
@@ -47,7 +47,7 @@ function NavGroup({ label, icon, children, isOpen, onToggle }: {
         onClick={onToggle}
         className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
           ${isOpen
-            ? 'text-primary bg-primary/5'
+            ? 'text-marine font-bold bg-primary/10'
             : 'text-gray-600 hover:bg-gray-100/80 hover:text-gray-900'
           }`}
       >
@@ -110,18 +110,28 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     if (isSidebarOpen) setSidebarOpen(false);
   }, [location]);
 
-  const isDev = user?.role === 'developer';
+  const isDev = user?.roles?.includes('developer') || user?.permissions?.includes('view_dev_tools') || user?.role === 'developer' || user?.role === 'admin' || user?.role === 'super-admin';
+  const isSuperAdmin = user?.roles?.includes('super-admin') || user?.role === 'super-admin';
+  
+  const hasPerm = (perm: string) => {
+      if (isSuperAdmin) return true;
+      if (user?.role === 'admin') return true; // Legacy fallback
+      return user?.permissions?.includes(perm);
+  };
 
   const renderNavItems = (onClick?: () => void) => (
     <>
       {/* ── Principal ── */}
       <NavItem to="/overview" label="Vue d'ensemble" icon={<LayoutDashboard size={18} />} onClick={onClick} />
-      <NavItem to="/rides/active" label="Courses actives" icon={<Car size={18} />} onClick={onClick} />
+      {hasPerm('view_rides') && (
+        <NavItem to="/rides/active" label="Courses actives" icon={<Car size={18} />} onClick={onClick} />
+      )}
       <NavItem to="/map" label="Carte stratégique" icon={<MapPin size={18} />} onClick={onClick} />
 
       <NavSeparator label="Gestion" />
 
       {/* ── Chauffeurs ── */}
+      {hasPerm('view_drivers') && (
       <NavGroup
         label="Chauffeurs"
         icon={<Car size={18} />}
@@ -134,8 +144,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <NavItem nested to="/drivers/debts" label="Dettes" icon={<Wallet size={16} />} onClick={onClick} />
         <NavItem nested to="/fleet" label="Flotte" icon={<Truck size={16} />} onClick={onClick} />
       </NavGroup>
+      )}
 
       {/* ── Utilisateurs ── */}
+      {hasPerm('view_users') && (
       <NavGroup
         label="Utilisateurs"
         icon={<Users size={18} />}
@@ -147,21 +159,27 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <NavItem nested to="/users" label="Gestion comptes" icon={<UserX size={16} />} onClick={onClick} />
         <NavItem nested to="/accounts" label="Modération" icon={<ShieldCheck size={16} />} onClick={onClick} />
       </NavGroup>
+      )}
 
       {/* ── Finances ── */}
+      {hasPerm('view_finance') && (
       <NavGroup
         label="Finances"
         icon={<DollarSign size={18} />}
         isOpen={!!openGroups.finance}
         onToggle={() => toggleGroup('finance')}
       >
-        <NavItem nested to="/pricing" label="Tarification" icon={<ClipboardList size={16} />} onClick={onClick} />
+        {hasPerm('manage_pricing') && (
+          <NavItem nested to="/pricing" label="Tarification" icon={<ClipboardList size={16} />} onClick={onClick} />
+        )}
         <NavItem nested to="/finance" label="Revenus" icon={<CreditCard size={16} />} onClick={onClick} />
       </NavGroup>
-
-      <NavSeparator label="Communication & Marketing" />
+      )}
 
       {/* ── Communication ── */}
+      {hasPerm('manage_promotions') && (
+        <>
+      <NavSeparator label="Communication & Marketing" />
       <NavGroup
         label="Communication & Marketing"
         icon={<Megaphone size={18} />}
@@ -172,6 +190,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <NavItem nested to="/promotions" label="Bannières Pubs" icon={<Ticket size={16} />} onClick={onClick} />
         <NavItem nested to="/promo-codes" label="Codes Promos" icon={<DollarSign size={16} />} onClick={onClick} />
       </NavGroup>
+      </>
+      )}
 
       {/* ── Développeur (dev role only) ── */}
       {isDev && (
@@ -206,9 +226,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <Link
           to="/profile"
           onClick={onClick}
-          className="flex items-center gap-3 px-3 py-2 rounded-lg bg-gray-50 mb-2 hover:bg-primary/5 hover:ring-1 hover:ring-primary/20 transition-all cursor-pointer group"
+          className="flex items-center gap-3 px-3 py-2 rounded-lg bg-gray-50 mb-2 hover:bg-primary/10 hover:ring-1 hover:ring-primary/30 transition-all cursor-pointer group"
         >
-          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-sm font-bold group-hover:bg-primary group-hover:text-white transition-colors overflow-hidden">
+          <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-marine text-sm font-bold group-hover:bg-primary group-hover:text-marine transition-colors overflow-hidden">
             {user?.photo ? (
               <img src={getStoragePublicUrl(user.photo) || ''} alt="Avatar" className="w-full h-full object-cover" />
             ) : (
@@ -219,7 +239,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <p className="text-sm font-medium text-gray-900 truncate">{user?.name || user?.email || 'Mon profil'}</p>
             <p className="text-xs text-gray-500 capitalize">{user?.role || 'developer'}</p>
           </div>
-          <Settings size={14} className="text-gray-400 group-hover:text-primary transition-colors" />
+          <Settings size={14} className="text-gray-400 group-hover:text-marine transition-colors" />
         </Link>
         <button onClick={logout} className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-700 hover:bg-red-500 hover:text-white transition-colors duration-200">
           <LogOut size={16} /><span>Se déconnecter</span>
@@ -233,8 +253,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       {/* ── Desktop sidebar ── */}
       <aside className="w-64 fixed inset-y-0 left-0 z-20 bg-white border-r border-gray-200 flex-col hidden lg:flex shadow-sm">
         <div className="h-16 flex items-center px-4 border-b border-gray-200 flex-shrink-0">
-          <Link to="/" className="flex items-center gap-3">
-            <img src={Img} alt="Logo" className="h-8 w-auto" />
+          <Link to="/" className="flex items-center gap-2">
+            <img src={Img} alt="Kêkênon Logo" className="h-10 w-auto object-contain" />
           </Link>
         </div>
         {sidebarContent()}
@@ -249,10 +269,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         className={`fixed inset-y-0 left-0 z-40 w-64 bg-white flex flex-col transition-transform duration-300 ease-in-out lg:hidden shadow-xl ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
       >
         <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200 flex-shrink-0">
-          <Link to="/" className="flex items-center gap-3">
-            <img src={Img} alt="Logo" className="h-8 w-auto" />
+          <Link to="/" className="flex items-center gap-2">
+            <img src={Img} alt="Kêkênon Logo" className="h-10 w-auto object-contain" />
           </Link>
-          <button onClick={() => setSidebarOpen(false)} className="p-1 text-gray-500 hover:text-primary rounded-full">
+          <button onClick={() => setSidebarOpen(false)} className="p-1 text-gray-500 hover:text-marine rounded-full">
             <X size={24} />
           </button>
         </div>
@@ -262,14 +282,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       {/* ── Main content ── */}
       <div className="flex-1 flex flex-col lg:pl-64">
         <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 lg:px-6 sticky top-0 z-10">
-          <button onClick={() => setSidebarOpen(true)} className="lg:hidden text-gray-600 hover:text-primary">
+          <button onClick={() => setSidebarOpen(true)} className="lg:hidden text-gray-600 hover:text-marine">
             <Menu size={24} />
           </button>
           <div className="flex-1 text-center lg:text-left">
             <h1 className="text-xl font-semibold text-gray-800"></h1>
           </div>
           <div className="flex items-center gap-4">
-            <button className="text-gray-500 hover:text-primary"><Bell size={20} /></button>
+            <button className="text-gray-500 hover:text-marine"><Bell size={20} /></button>
             <div className="w-px h-6 bg-gray-200 hidden sm:block"></div>
             <span className="text-sm font-medium text-gray-700 hidden sm:block">{user?.name}</span>
           </div>

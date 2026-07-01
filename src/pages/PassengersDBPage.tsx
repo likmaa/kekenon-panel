@@ -28,7 +28,7 @@ interface RideHistoryItem {
 // Composant Badge de Statut pour les passagers
 const PassengerStatusBadge = ({ status }: { status: PassengerStatus }) => {
   const statusConfig = {
-    active: { icon: <ShieldCheck size={14} />, style: 'bg-blue-100 text-blue-800' },
+    active: { icon: <ShieldCheck size={14} />, style: 'bg-amber-100 text-amber-800' },
     banned: { icon: <ShieldAlert size={14} />, style: 'bg-red-100 text-red-800' },
   };
   const config = statusConfig[status] || { icon: null, style: 'bg-gray-100 text-gray-800' };
@@ -345,7 +345,7 @@ export default function PassengersDBPage() {
                     onClick={() => setCurrentPage(pageNum)}
                     className={`px-3 py-1 rounded-md text-sm font-medium ${
                       currentPage === pageNum
-                        ? 'bg-primary text-white'
+                        ? 'bg-primary text-marine'
                         : 'text-gray-700 hover:bg-gray-50 border border-gray-300'
                     }`}
                   >

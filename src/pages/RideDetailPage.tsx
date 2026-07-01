@@ -112,7 +112,7 @@ export default function RideDetailPage() {
 
       {/* Métriques clés */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <MetricCard icon={<Navigation size={18} />} tone="bg-blue-50 text-blue-600"
+        <MetricCard icon={<Navigation size={18} />} tone="bg-amber-50 text-amber-600"
           label="Approche (chauffeur → client)" value={ride.approach_km != null ? `${ride.approach_km} km` : '—'} />
         <MetricCard icon={<MapPin size={18} />} tone="bg-emerald-50 text-emerald-600"
           label="Distance course (→ destination)" value={ride.ride_km != null ? `${ride.ride_km} km` : '—'} />

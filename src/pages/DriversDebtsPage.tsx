@@ -234,7 +234,7 @@ export default function DriversDebtsPage() {
                     />
                     <button
                         type="submit"
-                        className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90"
+                        className="px-4 py-2 bg-primary text-marine rounded-lg text-sm hover:bg-primary/90 font-bold"
                     >
                         Rechercher
                     </button>
@@ -318,7 +318,7 @@ export default function DriversDebtsPage() {
                                                             setAdjustModal({ walletId: d.wallet_id!, driverName: d.name });
                                                             setAdjustReason(ADJUST_REASONS[0]);
                                                         }}
-                                                        className="px-3 py-1 text-xs font-medium rounded bg-blue-100 text-blue-700 hover:bg-blue-200"
+                                                        className="px-3 py-1 text-xs font-medium rounded bg-amber-100 text-amber-700 hover:bg-amber-200"
                                                         title="Enregistrer un paiement ou une correction"
                                                     >
                                                         💰 Paiement
@@ -534,7 +534,7 @@ export default function DriversDebtsPage() {
                                 <button
                                     type="submit"
                                     disabled={adjustLoading}
-                                    className="flex-1 px-4 py-2 text-sm font-medium rounded-lg bg-primary text-white hover:bg-primary/90 disabled:opacity-50"
+                                    className="flex-1 px-4 py-2 text-sm rounded-lg bg-primary text-marine hover:bg-primary/90 disabled:opacity-50 font-bold"
                                 >
                                     {adjustLoading ? 'Enregistrement...' : 'Confirmer le paiement'}
                                 </button>

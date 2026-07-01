@@ -317,8 +317,8 @@ export default function ActiveRidesPage() {
                 return {
                     label: status === 'arrived' ? 'Chauffeur sur place' : 'Chauffeur en approche',
                     group: 'approaching',
-                    color: 'text-blue-700 bg-blue-100 border-blue-200',
-                    dot: 'bg-blue-500',
+                    color: 'text-amber-700 bg-amber-100 border-amber-200',
+                    dot: 'bg-amber-500',
                     isAlert: false
                 };
             case 'pickup':
@@ -373,7 +373,7 @@ export default function ActiveRidesPage() {
                     </button>
                     <button
                         onClick={() => navigate('/rides/create')}
-                        className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-semibold hover:bg-primary-dark shadow-sm transition-all"
+                        className="flex items-center gap-2 px-4 py-2 bg-primary text-marine rounded-lg text-sm hover:bg-primary-dark shadow-sm transition-all font-bold"
                     >
                         <PlusCircle size={16} />
                         Créer une course
@@ -498,7 +498,7 @@ export default function ActiveRidesPage() {
                                                 {['requested', 'accepted', 'arrived'].includes(ride.status) && (
                                                     <button
                                                         onClick={(e) => { e.stopPropagation(); fetchOnlineDrivers(); setIsAssignModalOpen(true); }}
-                                                        className="flex-1 py-1.5 bg-primary text-white rounded text-xs font-bold hover:bg-primary-dark transition-colors"
+                                                        className="flex-1 py-1.5 bg-primary text-marine rounded text-xs font-bold hover:bg-primary-dark transition-colors"
                                                     >
                                                         {ride.status === 'requested' ? 'Assigner' : 'Réassigner'}
                                                     </button>
@@ -539,7 +539,7 @@ export default function ActiveRidesPage() {
                     {!selectedRide ? (
                         <div className="absolute inset-0 z-10 flex items-center justify-center bg-gray-50/50 backdrop-blur-[2px]">
                             <div className="text-center p-8 bg-white/90 rounded-2xl shadow-xl border border-gray-100 max-w-xs">
-                                <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-4 text-blue-500 mx-auto">
+                                <div className="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center mb-4 text-amber-500 mx-auto">
                                     <Navigation size={32} />
                                 </div>
                                 <h3 className="text-lg font-bold text-gray-900 mb-2">Prêt pour le suivi</h3>
@@ -573,7 +573,7 @@ export default function ActiveRidesPage() {
                                             layout={{ 'line-join': 'round', 'line-cap': 'round' }}
                                             paint={routeCoords.length > 0
                                                 ? { 'line-color': '#3b82f6', 'line-width': 6, 'line-opacity': 0.85 }
-                                                : { 'line-color': '#3650D0', 'line-width': 4, 'line-dasharray': [2, 2] }}
+                                                : { 'line-color': '#FDD835', 'line-width': 4, 'line-dasharray': [2, 2] }}
                                         />
                                     </Source>
 
@@ -613,14 +613,14 @@ export default function ActiveRidesPage() {
                     {/* Overlay d'infos live enrichi */}
                     {selectedRide && (
                         <div className="absolute bottom-6 left-6 right-6 z-[400]">
-                            <div className="bg-white/95 backdrop-blur-md p-5 rounded-2xl shadow-2xl border border-blue-100 flex flex-wrap items-center justify-between gap-6">
+                            <div className="bg-white/95 backdrop-blur-md p-5 rounded-2xl shadow-2xl border border-amber-100 flex flex-wrap items-center justify-between gap-6">
                                 <div className="flex items-center gap-4">
-                                    <div className="w-14 h-14 bg-blue-600 rounded-full flex items-center justify-center text-white shadow-lg animate-pulse">
+                                    <div className="w-14 h-14 bg-amber-600 rounded-full flex items-center justify-center text-white shadow-lg animate-pulse">
                                         <Car size={28} />
                                     </div>
                                     <div className="space-y-0.5">
                                         <div className="flex items-center gap-2">
-                                            <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest">Tracking Live</p>
+                                            <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest">Tracking Live</p>
                                             <span className="flex h-2 w-2 rounded-full bg-green-500"></span>
                                         </div>
                                         <p className="text-base font-bold text-gray-900">{selectedRide.driver?.name || 'Chauffeur en attente'}</p>
@@ -641,11 +641,11 @@ export default function ActiveRidesPage() {
                                         <>
                                             <div className="text-center">
                                                 <p className="text-[10px] font-bold text-gray-400 uppercase">Distance</p>
-                                                <p className="text-sm font-black text-blue-700">{(routeInfo.distance / 1000).toFixed(1)} km</p>
+                                                <p className="text-sm font-black text-amber-700">{(routeInfo.distance / 1000).toFixed(1)} km</p>
                                             </div>
                                             <div className="text-center">
                                                 <p className="text-[10px] font-bold text-gray-400 uppercase">Arrivée estimée</p>
-                                                <p className="text-sm font-black text-blue-700">{Math.ceil(routeInfo.duration / 60)} min</p>
+                                                <p className="text-sm font-black text-amber-700">{Math.ceil(routeInfo.duration / 60)} min</p>
                                             </div>
                                         </>
                                     )}
@@ -704,7 +704,7 @@ export default function ActiveRidesPage() {
                                             </div>
                                             <button
                                                 onClick={() => handleAssignDriver(driver.id)}
-                                                className="px-4 py-2 bg-primary text-white hover:bg-primary-dark rounded-lg text-xs font-bold transition-colors shadow-sm"
+                                                className="px-4 py-2 bg-primary text-marine hover:bg-primary-dark rounded-lg text-xs font-bold transition-colors shadow-sm"
                                             >
                                                 Sélectionner
                                             </button>

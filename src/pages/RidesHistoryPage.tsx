@@ -89,7 +89,7 @@ export default function RidesHistoryPage() {
             <label className="block text-xs font-medium text-gray-600 mb-1">Au</label>
             <input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="border rounded-lg px-3 py-1.5 text-sm" />
           </div>
-          <button onClick={fetchRows} className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-white rounded-lg text-xs font-bold hover:bg-primary/90">
+          <button onClick={fetchRows} className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-marine rounded-lg text-xs font-bold hover:bg-primary/90">
             <Filter size={14} /> Filtrer
           </button>
           <button

@@ -151,7 +151,7 @@ export default function PricingConfigPage() {
         <button
           onClick={handleSave}
           disabled={isSaving}
-          className="flex items-center justify-center gap-2 w-full md:w-auto px-6 py-2.5 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors disabled:bg-gray-400"
+          className="flex items-center justify-center gap-2 w-full md:w-auto px-6 py-2.5 bg-primary text-marine rounded-lg hover:bg-primary-dark transition-colors disabled:bg-gray-400 font-bold"
         >
           {isSaving ? <Loader2 className="animate-spin" size={20} /> : <Save size={18} />}
           {isSaving ? 'Sauvegarde...' : 'Sauvegarder les changements'}
@@ -225,7 +225,7 @@ export default function PricingConfigPage() {
 
             <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-6">
               <div className="flex items-center gap-3">
-                <Clock className="text-blue-600" size={24} />
+                <Clock className="text-amber-600" size={24} />
                 <h2 className="text-lg font-semibold text-gray-900">Attente à la Prise en Charge</h2>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -253,7 +253,7 @@ export default function PricingConfigPage() {
             <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <Clock className="text-blue-500" size={24} />
+                  <Clock className="text-amber-500" size={24} />
                   <h2 className="text-lg font-semibold text-gray-900">Heures de Pointe</h2>
                 </div>
                 <input
@@ -364,15 +364,15 @@ export default function PricingConfigPage() {
             </div>
 
             {/* Mode Météo (Bouton d'urgence) */}
-            <div className={`p-6 rounded-xl border transition-all ${config.weather.enabled ? 'bg-blue-50 border-blue-200' : 'bg-white border-gray-200'} shadow-sm space-y-4`}>
+            <div className={`p-6 rounded-xl border transition-all ${config.weather.enabled ? 'bg-amber-50 border-amber-200' : 'bg-white border-gray-200'} shadow-sm space-y-4`}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <CloudRain className={config.weather.enabled ? 'text-blue-600' : 'text-gray-400'} size={24} />
+                  <CloudRain className={config.weather.enabled ? 'text-amber-600' : 'text-gray-400'} size={24} />
                   <h3 className="text-lg font-semibold text-gray-900">Mode Pluie / Intempéries</h3>
                 </div>
                 <button
                   onClick={() => setConfig({ ...config, weather: { ...config.weather, enabled: !config.weather.enabled } })}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${config.weather.enabled ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${config.weather.enabled ? 'bg-amber-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
                 >
                   {config.weather.enabled ? 'ACTIF' : 'ACTIVER'}
                 </button>
