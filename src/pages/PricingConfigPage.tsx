@@ -34,6 +34,14 @@ interface PricingConfig {
   };
   pickup_grace_period_m: number;
   pickup_waiting_rate_per_min: number;
+  business_model: {
+    driver_ride_share_pct: number;
+    passenger_app_fee: number;
+    driver_pack_price: number;
+    driver_pack_rides: number;
+    driver_effective_fee_per_ride: number;
+    expected_platform_revenue_per_ride: number;
+  };
 }
 
 // Props typées pour le composant PricingInput
@@ -109,6 +117,14 @@ export default function PricingConfigPage() {
           },
           pickup_grace_period_m: Number(data.pickup_grace_period_m ?? 5),
           pickup_waiting_rate_per_min: Number(data.pickup_waiting_rate_per_min ?? 10),
+          business_model: {
+            driver_ride_share_pct: 100,
+            passenger_app_fee: Number(data.business_model?.passenger_app_fee ?? 50),
+            driver_pack_price: Number(data.business_model?.driver_pack_price ?? 500),
+            driver_pack_rides: Number(data.business_model?.driver_pack_rides ?? 10),
+            driver_effective_fee_per_ride: Number(data.business_model?.driver_effective_fee_per_ride ?? 50),
+            expected_platform_revenue_per_ride: Number(data.business_model?.expected_platform_revenue_per_ride ?? 100),
+          },
         });
       } catch (e: any) {
         setError(e?.response?.data?.message || "Erreur de chargement de la configuration tarifaire");
@@ -167,6 +183,57 @@ export default function PricingConfigPage() {
 
       {config && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+          <div className="lg:col-span-2 bg-gradient-to-br from-emerald-700 to-emerald-600 p-6 rounded-2xl text-white shadow-sm overflow-hidden relative">
+            <div className="absolute -right-12 -top-16 h-56 w-56 rounded-full bg-white/10" />
+            <div className="relative space-y-5">
+              <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-emerald-100">modèle économique actif</p>
+                  <h2 className="mt-1 text-2xl font-bold">le zem garde 100 % du prix de la course</h2>
+                  <p className="mt-2 max-w-3xl text-sm text-emerald-50/90">
+                    Kêkênon se rémunère séparément avec les frais d’application passager et le pack de courses du zem. Aucune commission proportionnelle n’est retirée du tarif.
+                  </p>
+                </div>
+                <div className="rounded-xl bg-white/15 px-4 py-3 text-right backdrop-blur-sm">
+                  <p className="text-xs text-emerald-100">revenu théorique / course</p>
+                  <p className="text-2xl font-bold">
+                    {(config.business_model.passenger_app_fee + (config.business_model.driver_pack_price / Math.max(1, config.business_model.driver_pack_rides))).toLocaleString('fr-FR', { maximumFractionDigits: 0 })} F
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="rounded-xl bg-white p-4 text-gray-900">
+                  <PricingInput
+                    label="Frais application passager"
+                    unit="FCFA"
+                    value={config.business_model.passenger_app_fee}
+                    onChange={e => setConfig({ ...config, business_model: { ...config.business_model, passenger_app_fee: parseInt(e.target.value) || 0 } })}
+                    description="Tarif normal : 50 F. Ramenez ce montant à 25 F uniquement pendant une promotion."
+                  />
+                </div>
+                <div className="rounded-xl bg-white p-4 text-gray-900">
+                  <PricingInput
+                    label="Prix du pack zem"
+                    unit="FCFA"
+                    value={config.business_model.driver_pack_price}
+                    onChange={e => setConfig({ ...config, business_model: { ...config.business_model, driver_pack_price: parseInt(e.target.value) || 0 } })}
+                    description="Débité au renouvellement du pack."
+                  />
+                </div>
+                <div className="rounded-xl bg-white p-4 text-gray-900">
+                  <PricingInput
+                    label="Courses par pack"
+                    unit="courses"
+                    value={config.business_model.driver_pack_rides}
+                    onChange={e => setConfig({ ...config, business_model: { ...config.business_model, driver_pack_rides: Math.max(1, parseInt(e.target.value) || 1) } })}
+                    description={`Coût effectif : ${(config.business_model.driver_pack_price / Math.max(1, config.business_model.driver_pack_rides)).toLocaleString('fr-FR', { maximumFractionDigits: 1 })} F/course.`}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
 
           {/* Section 1: Tarification de Base & Arrêts */}
           <div className="space-y-6">
@@ -390,9 +457,36 @@ export default function PricingConfigPage() {
               )}
             </div>
           </div>
+
+          <div className="lg:col-span-2 bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-5">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">simulation de la grille standard</h2>
+                <p className="text-sm text-gray-500">Hors attente, bagage, promotion et majoration dynamique.</p>
+              </div>
+              <span className="text-xs font-semibold text-gray-500 rounded-full bg-gray-100 px-3 py-1.5">arrondi aux 100 F à la fin de la course</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {[
+                { label: 'course courte', km: 1, min: 5 },
+                { label: 'course moyenne', km: 3, min: 10 },
+                { label: 'course longue', km: 5, min: 15 },
+              ].map(sample => {
+                const trajectory = Math.max(config.min_fare, config.base_fare + sample.km * config.per_km);
+                const fare = Math.ceil((trajectory + sample.min * config.per_min) / 100) * 100;
+                return (
+                  <div key={sample.label} className="rounded-xl border border-gray-200 p-4">
+                    <p className="text-xs font-bold uppercase tracking-wide text-gray-400">{sample.label}</p>
+                    <p className="mt-1 text-sm text-gray-600">{sample.km} km · {sample.min} min</p>
+                    <p className="mt-3 text-2xl font-bold text-gray-900">{fare.toLocaleString('fr-FR')} F</p>
+                    <p className="mt-1 text-xs text-emerald-700">zem : {fare.toLocaleString('fr-FR')} F avant promotion</p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       )}
     </div>
   );
 }
-

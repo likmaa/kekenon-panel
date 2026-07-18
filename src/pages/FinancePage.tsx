@@ -33,6 +33,21 @@ interface FinanceSummary {
   commission_rate: number;
   rides_count: number;
   payouts_pending: number;
+  passenger_app_fees: number;
+  driver_pack_revenue: number;
+  bonus_consumed: number;
+  promo_subsidies: number;
+  driver_rewards_cost: number;
+  net_platform_margin: number;
+}
+
+interface EconomicModel {
+  driver_ride_share_pct: number;
+  passenger_app_fee: number;
+  driver_pack_price: number;
+  driver_pack_rides: number;
+  driver_effective_fee_per_ride: number;
+  expected_platform_revenue_per_ride: number;
 }
 
 // Props pour les cartes de statistiques
@@ -75,8 +90,15 @@ export default function FinancePage() {
   type FinOverview = {
     ca_today: number; ca_week: number; ca_month: number;
     cash_payments: number; digital_payments: number; driver_payments: number;
+    platform_revenue_today: number; platform_revenue_week: number; platform_revenue_month: number;
+    platform_revenue: number; passenger_app_fees: number; driver_pack_revenue: number;
+    bonus_consumed: number; promo_subsidies: number; driver_rewards_cost: number; net_platform_margin: number;
   };
-  type FinReportRow = { label: string; rides_count: number; gross_volume: number; commission: number; driver_earnings: number; cash: number; digital: number; };
+  type FinReportRow = {
+    label: string; rides_count: number; gross_volume: number; platform_revenue: number;
+    passenger_app_fees: number; driver_pack_revenue: number; promo_subsidies: number;
+    driver_rewards_cost: number; net_platform_margin: number; driver_earnings: number; cash: number; digital: number;
+  };
   const [finOverview, setFinOverview] = useState<FinOverview | null>(null);
   const [reportRows, setReportRows] = useState<FinReportRow[]>([]);
   const [reportGranularity, setReportGranularity] = useState<'day' | 'week' | 'month'>('month');
@@ -86,54 +108,10 @@ export default function FinancePage() {
   const [txPage, setTxPage] = useState(1);
   const [txTotal, setTxTotal] = useState(0);
   const txPerPage = 20;
-
-  // Commission local state
-  const [commPlatform, setCommPlatform] = useState(0);
-  const [commDriver, setCommDriver] = useState(0);
-  const [commMaintenance, setCommMaintenance] = useState(0);
-  const [commLoading, setCommLoading] = useState(false);
-  const [commSaving, setCommSaving] = useState(false);
-  const [commError, setCommError] = useState<string | null>(null);
+  const [economicModel, setEconomicModel] = useState<EconomicModel | null>(null);
   const [rideIdToConfirm, setRideIdToConfirm] = useState('');
   const [confirmRidePaymentLoading, setConfirmRidePaymentLoading] = useState(false);
   const [sandboxMessage, setSandboxMessage] = useState<string | null>(null);
-
-  const fetchCommSettings = async () => {
-    setCommLoading(true);
-    try {
-      const res = await api.get('/api/admin/settings');
-      const data = res.data;
-      setCommPlatform(data.commission_platform ?? 0);
-      setCommDriver(data.commission_driver ?? 0);
-      setCommMaintenance(data.commission_maintenance ?? 0);
-    } catch (e) {
-      console.error("Failed to fetch commission settings");
-    } finally {
-      setCommLoading(false);
-    }
-  };
-
-  const handleSaveComm = async () => {
-    const total = Number(commPlatform) + Number(commDriver) + Number(commMaintenance);
-    if (total !== 100) {
-      alert(`Le total doit être égal à 100%. Actuel: ${total}%`);
-      return;
-    }
-    setCommSaving(true);
-    setCommError(null);
-    try {
-      await api.post('/api/admin/settings', {
-        commission_platform: commPlatform,
-        commission_driver: commDriver,
-        commission_maintenance: commMaintenance,
-      });
-      alert("Paramètres de commission mis à jour avec succès !");
-    } catch (e: any) {
-      setCommError(e?.response?.data?.message || "Erreur lors de la sauvegarde");
-    } finally {
-      setCommSaving(false);
-    }
-  };
 
   const computeRange = (rangeKey: string): { from: string; to: string } => {
     const now = new Date();
@@ -196,8 +174,9 @@ export default function FinancePage() {
     };
 
     fetchSummary();
-    api.get('/api/admin/finance/overview').then((r) => setFinOverview(r.data)).catch(() => {});
-    fetchCommSettings();
+    const { from, to } = computeRange(dateRange);
+    api.get('/api/admin/finance/overview', { params: { from, to } }).then((r) => setFinOverview(r.data)).catch(() => {});
+    api.get('/api/admin/pricing').then((r) => setEconomicModel(r.data?.business_model ?? null)).catch(() => {});
   }, [dateRange]);
 
   useEffect(() => {
@@ -222,10 +201,17 @@ export default function FinancePage() {
         const mapped: Transaction[] = body.data.map((item, index) => {
           const status: TransactionStatus = item.status === 'succeeded' ? 'completed' : 'pending';
           return {
-            id: String(item.id),
+            id: `${item.type}-${item.id}`,
             date: item.created_at,
-            passenger: item.type === 'ride_payment' ? 'Course passager' : 'Prime chauffeur',
-            driver: item.type === 'ride_payment' ? 'Course chauffeur' : 'Prime chauffeur',
+            passenger: item.type === 'ride_payment' ? 'Paiement course'
+              : item.type === 'app_fee' ? 'Frais passager'
+                : item.type === 'subscription_fee' ? 'Pack zem'
+                  : item.type === 'subscription_fee_bonus' ? 'Pack payé en bonus'
+                    : 'Prime chauffeur',
+            driver: item.type === 'ride_payment' ? 'Gain zem'
+              : item.type === 'app_fee' ? 'Kêkênon'
+                : item.type.startsWith('subscription_fee') ? 'Kêkênon'
+                  : 'Prime chauffeur',
             amount: item.amount,
             commission: (item as any).commission || 0,
             driver_payout: (item as any).payout || 0,
@@ -268,7 +254,7 @@ export default function FinancePage() {
       {/* En-tête de la page */}
       <header>
         <h1 className="text-2xl font-bold text-gray-900">Finances et Transactions</h1>
-        <p className="text-sm text-gray-500 mt-1">Supervisez les flux financiers, les commissions et les paiements aux chauffeurs.</p>
+        <p className="text-sm text-gray-500 mt-1">Supervisez les flux financiers, les revenus Kêkênon et les gains des zems.</p>
       </header>
 
       {/* §20.9 — Pilotage financier : KPI + rapport + export */}
@@ -277,12 +263,13 @@ export default function FinancePage() {
           <h2 className="text-lg font-semibold text-gray-900">Pilotage financier</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-3">
             {[
-              { label: "CA aujourd'hui", value: finOverview.ca_today, tone: 'text-green-700' },
-              { label: 'CA semaine', value: finOverview.ca_week, tone: 'text-green-700' },
-              { label: 'CA mois', value: finOverview.ca_month, tone: 'text-green-700' },
-              { label: 'Paiements espèces', value: finOverview.cash_payments, tone: 'text-gray-900' },
-              { label: 'Paiements digitaux', value: finOverview.digital_payments, tone: 'text-amber-700' },
-              { label: 'Paiements chauffeurs', value: finOverview.driver_payments, tone: 'text-indigo-700' },
+              { label: 'Volume courses aujourd’hui', value: finOverview.ca_today, tone: 'text-gray-900' },
+              { label: 'Revenus Kêkênon aujourd’hui', value: finOverview.platform_revenue_today, tone: 'text-emerald-700' },
+              { label: 'Revenus Kêkênon semaine', value: finOverview.platform_revenue_week, tone: 'text-emerald-700' },
+              { label: 'Revenus Kêkênon mois', value: finOverview.platform_revenue_month, tone: 'text-emerald-700' },
+              { label: 'Frais passagers (période)', value: finOverview.passenger_app_fees, tone: 'text-amber-700' },
+              { label: 'Packs zems (période)', value: finOverview.driver_pack_revenue, tone: 'text-indigo-700' },
+              { label: 'Marge nette (période)', value: finOverview.net_platform_margin, tone: finOverview.net_platform_margin >= 0 ? 'text-emerald-700' : 'text-red-700' },
             ].map((k, i) => (
               <div key={i} className="rounded-xl border border-gray-100 p-3">
                 <p className={`text-lg font-bold ${k.tone}`}>{k.value.toLocaleString('fr-FR')} F</p>
@@ -309,8 +296,8 @@ export default function FinancePage() {
                 <button
                   onClick={() => exportToCsv(
                     `rapport-financier-${reportGranularity}`,
-                    ['Période', 'Courses', 'CA brut', 'Commission', 'Gains chauffeurs', 'Espèces', 'Digital'],
-                    reportRows.map((r) => [r.label, r.rides_count, r.gross_volume, r.commission, r.driver_earnings, r.cash, r.digital]),
+                    ['Période', 'Courses', 'Volume courses', 'Revenus Kêkênon', 'Frais passagers', 'Packs zems', 'Promotions financées', 'Marge nette', 'Gains zems'],
+                    reportRows.map((r) => [r.label, r.rides_count, r.gross_volume, r.platform_revenue, r.passenger_app_fees, r.driver_pack_revenue, r.promo_subsidies, r.net_platform_margin, r.driver_earnings]),
                   )}
                   disabled={reportRows.length === 0}
                   className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-bold hover:bg-emerald-700 disabled:opacity-50"
@@ -329,7 +316,7 @@ export default function FinancePage() {
               <table className="min-w-full text-sm">
                 <thead className="bg-gray-50">
                   <tr>
-                    {['Période', 'Courses', 'CA brut', 'Commission', 'Gains chauffeurs', 'Espèces', 'Digital'].map((h) => (
+                    {['Période', 'Courses', 'Volume courses', 'Revenus Kêkênon', 'Promotions financées', 'Marge nette', 'Gains zems'].map((h) => (
                       <th key={h} className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{h}</th>
                     ))}
                   </tr>
@@ -340,10 +327,10 @@ export default function FinancePage() {
                       <td className="px-3 py-2 font-medium text-gray-800">{r.label}</td>
                       <td className="px-3 py-2 text-gray-600">{r.rides_count}</td>
                       <td className="px-3 py-2 font-semibold text-gray-900">{r.gross_volume.toLocaleString('fr-FR')} F</td>
-                      <td className="px-3 py-2 text-emerald-700">{r.commission.toLocaleString('fr-FR')} F</td>
+                      <td className="px-3 py-2 text-emerald-700">{r.platform_revenue.toLocaleString('fr-FR')} F</td>
+                      <td className="px-3 py-2 text-red-600">{r.promo_subsidies.toLocaleString('fr-FR')} F</td>
+                      <td className={`px-3 py-2 font-semibold ${r.net_platform_margin >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>{r.net_platform_margin.toLocaleString('fr-FR')} F</td>
                       <td className="px-3 py-2 text-indigo-700">{r.driver_earnings.toLocaleString('fr-FR')} F</td>
-                      <td className="px-3 py-2 text-gray-600">{r.cash.toLocaleString('fr-FR')} F</td>
-                      <td className="px-3 py-2 text-amber-700">{r.digital.toLocaleString('fr-FR')} F</td>
                     </tr>
                   ))}
                 </tbody>
@@ -364,18 +351,18 @@ export default function FinancePage() {
       {/* Section des KPIs (Indicateurs Clés de Performance) */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
         <StatCard
-          title="Chiffre d'affaires total"
+          title="Volume total des courses"
           value={summary ? `${summary.gross_volume.toLocaleString('fr-FR')} FCFA` : '—'}
           icon={DollarSign}
         />
         <StatCard
-          title="Commissions perçues"
+          title="Revenus Kêkênon encaissés"
           value={summary ? `${summary.net_revenue.toLocaleString('fr-FR')} FCFA` : '—'}
           icon={DollarSign}
         />
         <StatCard
-          title="Paiements aux chauffeurs"
-          value={summary ? `${(summary.gross_volume - summary.net_revenue).toLocaleString('fr-FR')} FCFA` : '—'}
+          title="Marge nette après promotions"
+          value={summary ? `${summary.net_platform_margin.toLocaleString('fr-FR')} FCFA` : '—'}
           icon={Car}
         />
         <StatCard
@@ -410,55 +397,35 @@ export default function FinancePage() {
         {sandboxMessage && <p className="text-xs text-emerald-900 mt-2">{sandboxMessage}</p>}
       </div>
 
-      {/* Paramètres de Commission (Developer Only) */}
-      <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Paramètres de Commission (%)</h2>
-        {commLoading ? (
-          <p className="text-sm text-gray-500">Chargement des paramètres...</p>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-            <div>
-              <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Plateforme (%)</label>
-              <input
-                type="number"
-                value={commPlatform}
-                onChange={(e) => setCommPlatform(Number(e.target.value))}
-                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary outline-none"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Chauffeur (%)</label>
-              <input
-                type="number"
-                value={commDriver}
-                onChange={(e) => setCommDriver(Number(e.target.value))}
-                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary outline-none"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Maintenance (%)</label>
-              <input
-                type="number"
-                value={commMaintenance}
-                onChange={(e) => setCommMaintenance(Number(e.target.value))}
-                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary outline-none"
-              />
-            </div>
-            <div>
-              <button
-                onClick={handleSaveComm}
-                disabled={commSaving}
-                className="w-full px-4 py-2 bg-primary text-marine font-bold rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50"
-              >
-                {commSaving ? "Enregistrement..." : "Sauvegarder"}
-              </button>
-            </div>
+      <div className="bg-emerald-50 p-6 rounded-xl border border-emerald-200 shadow-sm">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wider text-emerald-700">modèle économique actif</p>
+            <h2 className="mt-1 text-xl font-bold text-emerald-950">aucune commission sur le prix de la course</h2>
+            <p className="mt-2 text-sm text-emerald-800 max-w-2xl">
+              Le zem conserve 100 % du tarif avant promotion. Les revenus Kêkênon viennent des frais passagers et des packs zems ; les bonus consommés restent séparés des revenus encaissés.
+            </p>
           </div>
-        )}
-        {commError && <p className="text-sm text-red-600 mt-2">{commError}</p>}
-        <p className="text-xs text-gray-400 mt-3 italic">
-          * Le total des trois pourcentages doit impérativement être égal à 100%. Ces valeurs impactent directement le calcul des gains lors de la complétion d'une course.
-        </p>
+          {economicModel && (
+            <div className="grid grid-cols-3 gap-3 min-w-full lg:min-w-[480px]">
+              <div className="rounded-xl bg-white p-3 border border-emerald-100">
+                <p className="text-lg font-bold text-gray-900">{economicModel.passenger_app_fee.toLocaleString('fr-FR')} F</p>
+                <p className="text-[11px] text-gray-500">frais passager</p>
+              </div>
+              <div className="rounded-xl bg-white p-3 border border-emerald-100">
+                <p className="text-lg font-bold text-gray-900">{economicModel.driver_pack_price.toLocaleString('fr-FR')} F</p>
+                <p className="text-[11px] text-gray-500">pack {economicModel.driver_pack_rides} courses</p>
+              </div>
+              <div className="rounded-xl bg-white p-3 border border-emerald-100">
+                <p className="text-lg font-bold text-emerald-700">{economicModel.expected_platform_revenue_per_ride.toLocaleString('fr-FR')} F</p>
+                <p className="text-[11px] text-gray-500">théorique/course</p>
+              </div>
+            </div>
+          )}
+        </div>
+        <a href="/pricing" className="inline-flex mt-4 text-sm font-bold text-emerald-700 hover:text-emerald-900">
+          modifier le modèle dans la tarification →
+        </a>
       </div>
 
       {/* Carte principale pour la liste des transactions */}
@@ -492,7 +459,7 @@ export default function FinancePage() {
           <table className="min-w-full bg-white">
             <thead className="bg-gray-50">
               <tr>
-                {['ID Transaction', 'Date', 'Passager', 'Chauffeur', 'Montant Total', 'Commission', 'Paiement Chauffeur', 'Statut'].map((header) => (
+                {['ID', 'Date', 'Nature', 'Bénéficiaire', 'Montant', 'Revenu Kêkênon', 'Gain zem', 'Statut'].map((header) => (
                   <th key={header} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     {header}
                   </th>
