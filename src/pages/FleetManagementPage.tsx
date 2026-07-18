@@ -68,7 +68,7 @@ export default function FleetManagementPage() {
   type FleetRow = {
     driver_id: number; driver_name: string; license_plate: string | null; vehicle: string | null;
     rides_count: number; gross_revenue: number; platform_commission: number; driver_earnings: number;
-    distance_km: number; debt_amount: number;
+    distance_km: number;
   };
   const [fleetRows, setFleetRows] = useState<FleetRow[]>([]);
   const [fleetPeriod, setFleetPeriod] = useState<number>(30);
@@ -197,7 +197,7 @@ export default function FleetManagementPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <div>
             <h2 className="text-lg font-semibold text-gray-900">Rentabilité par véhicule</h2>
-            <p className="text-sm text-gray-500">CA généré, commission plateforme, gains chauffeur et dette par véhicule.</p>
+            <p className="text-sm text-gray-500">CA généré, commission plateforme et gains chauffeur par véhicule.</p>
           </div>
           <div className="flex gap-2 items-center">
             <div className="flex gap-1 bg-gray-100 p-1 rounded-lg">
@@ -214,8 +214,8 @@ export default function FleetManagementPage() {
             <button
               onClick={() => exportToCsv(
                 `rentabilite-flotte-${fleetPeriod}j`,
-                ['Chauffeur', 'Plaque', 'Véhicule', 'Courses', 'CA généré', 'Commission plateforme', 'Gains chauffeur', 'Distance (km)', 'Dette'],
-                fleetRows.map((r) => [r.driver_name, r.license_plate ?? '', r.vehicle ?? '', r.rides_count, r.gross_revenue, r.platform_commission, r.driver_earnings, r.distance_km, r.debt_amount]),
+                ['Chauffeur', 'Plaque', 'Véhicule', 'Courses', 'CA généré', 'Commission plateforme', 'Gains chauffeur', 'Distance (km)'],
+                fleetRows.map((r) => [r.driver_name, r.license_plate ?? '', r.vehicle ?? '', r.rides_count, r.gross_revenue, r.platform_commission, r.driver_earnings, r.distance_km]),
               )}
               disabled={fleetRows.length === 0}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-bold hover:bg-emerald-700 disabled:opacity-50"
@@ -229,7 +229,7 @@ export default function FleetManagementPage() {
           <table className="min-w-full text-sm">
             <thead className="bg-gray-50">
               <tr>
-                {['Véhicule / Chauffeur', 'Courses', 'CA généré', 'Commission', 'Gains chauffeur', 'Distance', 'Dette'].map((h) => (
+                {['Véhicule / Chauffeur', 'Courses', 'CA généré', 'Commission', 'Gains chauffeur', 'Distance'].map((h) => (
                   <th key={h} className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{h}</th>
                 ))}
               </tr>
@@ -246,9 +246,6 @@ export default function FleetManagementPage() {
                   <td className="px-3 py-2 text-emerald-700">{r.platform_commission.toLocaleString('fr-FR')} F</td>
                   <td className="px-3 py-2 text-indigo-700">{r.driver_earnings.toLocaleString('fr-FR')} F</td>
                   <td className="px-3 py-2 text-gray-600">{r.distance_km} km</td>
-                  <td className={`px-3 py-2 ${r.debt_amount > 0 ? 'text-red-600 font-semibold' : 'text-gray-500'}`}>
-                    {r.debt_amount > 0 ? `${r.debt_amount.toLocaleString('fr-FR')} F` : '—'}
-                  </td>
                 </tr>
               ))}
             </tbody>

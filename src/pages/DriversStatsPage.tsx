@@ -37,8 +37,6 @@ export default function DriversStatsPage() {
       avg_pickup_seconds: number | null;
       rating: number | null;
       rating_count: number;
-      debt_amount: number;
-      debt_level: 'ok' | 'notify' | 'alert' | 'blocked';
     };
   };
   const [scores, setScores] = useState<DriverScore[]>([]);
@@ -123,12 +121,6 @@ export default function DriversStatsPage() {
   };
 
   const scoreColor = (s: number) => (s >= 80 ? 'text-green-600' : s >= 60 ? 'text-amber-600' : s >= 40 ? 'text-orange-600' : 'text-red-600');
-  const debtBadge: Record<string, { label: string; cls: string }> = {
-    ok: { label: 'OK', cls: 'bg-green-100 text-green-700' },
-    notify: { label: 'Niv.1', cls: 'bg-yellow-100 text-yellow-700' },
-    alert: { label: 'Niv.2', cls: 'bg-orange-100 text-orange-700' },
-    blocked: { label: 'Niv.3', cls: 'bg-red-600 text-white' },
-  };
 
   return (
     <div className="space-y-8">
@@ -162,7 +154,7 @@ export default function DriversStatsPage() {
             <table className="min-w-full bg-white text-sm">
               <thead className="bg-gray-50">
                 <tr>
-                  {['#', 'Chauffeur', 'Score', 'Activité', 'Satisf.', 'Ponctu.', 'Discip.', 'Courses', 'Note', 'Annul.', 'Dette'].map((h) => (
+                  {['#', 'Chauffeur', 'Score', 'Activité', 'Satisf.', 'Ponctu.', 'Discip.', 'Courses', 'Note', 'Annul.'].map((h) => (
                     <th key={h} className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{h}</th>
                   ))}
                 </tr>
@@ -185,11 +177,6 @@ export default function DriversStatsPage() {
                     <td className="px-3 py-2 text-gray-700">{d.kpi.completed_rides}</td>
                     <td className="px-3 py-2 text-gray-700">{d.kpi.rating != null ? `${d.kpi.rating}★` : '—'}</td>
                     <td className="px-3 py-2 text-gray-700">{d.kpi.cancellation_rate_pct}%</td>
-                    <td className="px-3 py-2">
-                      <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${debtBadge[d.kpi.debt_level].cls}`}>
-                        {debtBadge[d.kpi.debt_level].label}
-                      </span>
-                    </td>
                   </tr>
                 ))}
               </tbody>

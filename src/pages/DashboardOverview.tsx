@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   ArrowUpRight, ArrowDownRight, Users, CircleDot, DollarSign,
-  Activity, AlertTriangle, UserCheck, Percent, Wallet, Timer, Target, ShieldAlert, Bell, RefreshCw,
+  Activity, AlertTriangle, UserCheck, Percent, Timer, Target, ShieldAlert, Bell, RefreshCw,
   Hand, Hourglass, XCircle, UserX, Radar
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -25,7 +25,6 @@ interface OverviewData {
   active_rides: number;
   active_users_30d: number;
   acceptance_rate_pct: number | null;
-  total_driver_debt: { amount: number; currency: string };
   avg_assignment_seconds: number | null;
 }
 
@@ -324,12 +323,6 @@ export default function DashboardOverview() {
               icon={Percent}
               description="courses du jour"
               colorTheme={overview.acceptance_rate_pct !== null && overview.acceptance_rate_pct < 70 ? 'red' : 'green'}
-            />
-            <StatCard
-              title="Dette totale chauffeurs"
-              value={fmtXOF(overview.total_driver_debt.amount)}
-              icon={Wallet}
-              colorTheme={overview.total_driver_debt.amount > 0 ? 'red' : 'green'}
             />
             <StatCard
               title="Temps moyen d'attribution"

@@ -74,7 +74,7 @@ export default function FinancePage() {
   // §20.9 — Pilotage financier
   type FinOverview = {
     ca_today: number; ca_week: number; ca_month: number;
-    cash_payments: number; digital_payments: number; driver_payments: number; global_debt: number;
+    cash_payments: number; digital_payments: number; driver_payments: number;
   };
   type FinReportRow = { label: string; rides_count: number; gross_volume: number; commission: number; driver_earnings: number; cash: number; digital: number; };
   const [finOverview, setFinOverview] = useState<FinOverview | null>(null);
@@ -283,7 +283,6 @@ export default function FinancePage() {
               { label: 'Paiements espèces', value: finOverview.cash_payments, tone: 'text-gray-900' },
               { label: 'Paiements digitaux', value: finOverview.digital_payments, tone: 'text-amber-700' },
               { label: 'Paiements chauffeurs', value: finOverview.driver_payments, tone: 'text-indigo-700' },
-              { label: 'Dette globale', value: finOverview.global_debt, tone: finOverview.global_debt > 0 ? 'text-red-600' : 'text-gray-900' },
             ].map((k, i) => (
               <div key={i} className="rounded-xl border border-gray-100 p-3">
                 <p className={`text-lg font-bold ${k.tone}`}>{k.value.toLocaleString('fr-FR')} F</p>

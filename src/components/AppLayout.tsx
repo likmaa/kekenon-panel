@@ -6,7 +6,7 @@ import { getStoragePublicUrl } from '@/utils/storagePublicUrl';
 import {
   LayoutDashboard, Users, UserCheck, Car, DollarSign, Bell,
   ShieldCheck, Code, LogOut, Menu, X, Activity, Wifi, Ticket,
-  ChevronDown, TrendingUp, Wallet, UserX, Truck, ClipboardList,
+  ChevronDown, TrendingUp, UserX, Truck, ClipboardList,
   CreditCard, Megaphone, Settings, MapPin
 } from 'lucide-react';
 
@@ -141,7 +141,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <NavItem nested to="/drivers/pending" label="En attente" icon={<UserCheck size={16} />} onClick={onClick} />
         <NavItem nested to="/drivers/online" label="Statut en ligne" icon={<Users size={16} />} onClick={onClick} />
         <NavItem nested to="/drivers/stats" label="Statistiques" icon={<TrendingUp size={16} />} onClick={onClick} />
-        <NavItem nested to="/drivers/debts" label="Dettes" icon={<Wallet size={16} />} onClick={onClick} />
         <NavItem nested to="/fleet" label="Flotte" icon={<Truck size={16} />} onClick={onClick} />
       </NavGroup>
       )}

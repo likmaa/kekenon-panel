@@ -16,7 +16,6 @@ import AppLayout from '@/components/AppLayout'
 import UsersManagementPage from '@/pages/UsersManagementPage'
 import OnlineDriversPage from '@/pages/OnlineDriversPage'
 import DriversStatsPage from '@/pages/DriversStatsPage'
-import DriversDebtsPage from '@/pages/DriversDebtsPage'
 import ActiveRidesPage from '@/pages/ActiveRidesPage'
 import CreateRidePage from '@/pages/CreateRidePage'
 import PerformanceMetricsPage from '@/pages/PerformanceMetricsPage'
@@ -159,16 +158,6 @@ export default function App() {
           <PrivateRoute roles={["admin", "developer"]}>
             <AppLayout>
               <DriversStatsPage />
-            </AppLayout>
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/drivers/debts"
-        element={
-          <PrivateRoute roles={["admin", "developer"]}>
-            <AppLayout>
-              <DriversDebtsPage />
             </AppLayout>
           </PrivateRoute>
         }
