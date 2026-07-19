@@ -52,7 +52,7 @@ export default function DriversStatsPage() {
         const res = await api.get(`/api/admin/stats/drivers/scores?days=${scorePeriod}`);
         setScores(res.data?.drivers ?? []);
       } catch (e: any) {
-        setScoresError(e?.response?.data?.message || 'Impossible de charger les scores chauffeurs');
+        setScoresError(e?.response?.data?.message || 'Impossible de charger les scores zems');
       } finally {
         setScoresLoading(false);
       }
@@ -74,7 +74,7 @@ export default function DriversStatsPage() {
         }));
         setDrivers(mapped);
       } catch (e: any) {
-        setDriversError(e?.response?.data?.message || "Impossible de charger la liste des chauffeurs");
+        setDriversError(e?.response?.data?.message || "Impossible de charger la liste des zems");
       } finally {
         setDriversLoading(false);
       }
@@ -91,7 +91,7 @@ export default function DriversStatsPage() {
         const res = await getTopDriversDailyStats({ from: from || undefined, to: to || undefined });
         setTopStats(res.data || []);
       } catch (e: any) {
-        setTopError(e?.response?.data?.message || "Impossible de charger le classement des chauffeurs");
+        setTopError(e?.response?.data?.message || "Impossible de charger le classement des zems");
       } finally {
         setTopLoading(false);
       }
@@ -103,7 +103,7 @@ export default function DriversStatsPage() {
     if (!driverIdInput.trim()) return;
     const parsed = Number(driverIdInput.trim());
     if (!parsed || Number.isNaN(parsed)) {
-      setDailyError("ID chauffeur invalide");
+      setDailyError("ID zem invalide");
       return;
     }
 
@@ -114,7 +114,7 @@ export default function DriversStatsPage() {
       const res = await getDriverDailyStats({ driverId: parsed, from: from || undefined, to: to || undefined });
       setDailyStats(res.data || []);
     } catch (e: any) {
-      setDailyError(e?.response?.data?.message || "Impossible de charger les statistiques du chauffeur");
+      setDailyError(e?.response?.data?.message || "Impossible de charger les statistiques du zem");
     } finally {
       setDailyLoading(false);
     }
@@ -124,11 +124,11 @@ export default function DriversStatsPage() {
 
   return (
     <div className="space-y-8">
-      {/* §20.5 — Score & Classement chauffeurs */}
+      {/* §20.5 — Score & classement zems */}
       <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2">
           <div>
-            <h2 className="text-xl font-bold text-gray-900">Score & Classement chauffeurs</h2>
+            <h2 className="text-xl font-bold text-gray-900">Score & classement zems</h2>
             <p className="text-sm text-gray-500">
               Score /100 = 40% activité · 30% satisfaction · 20% ponctualité · 10% discipline
             </p>
@@ -154,7 +154,7 @@ export default function DriversStatsPage() {
             <table className="min-w-full bg-white text-sm">
               <thead className="bg-gray-50">
                 <tr>
-                  {['#', 'Chauffeur', 'Score', 'Activité', 'Satisf.', 'Ponctu.', 'Discip.', 'Courses', 'Note', 'Annul.'].map((h) => (
+                  {['#', 'Zem', 'Score', 'Activité', 'Satisf.', 'Ponctu.', 'Discip.', 'Courses', 'Note', 'Annul.'].map((h) => (
                     <th key={h} className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{h}</th>
                   ))}
                 </tr>
@@ -185,25 +185,25 @@ export default function DriversStatsPage() {
         )}
 
         {!scoresLoading && scores.length === 0 && !scoresError && (
-          <p className="text-sm text-gray-500 mt-2">Aucune activité chauffeur sur la période sélectionnée.</p>
+          <p className="text-sm text-gray-500 mt-2">Aucune activité zem sur la période sélectionnée.</p>
         )}
       </div>
 
       <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-        <h2 className="text-xl font-bold text-gray-900 mb-2">Statistiques journalières par chauffeur</h2>
+        <h2 className="text-xl font-bold text-gray-900 mb-2">Statistiques journalières par zem</h2>
         <p className="text-sm text-gray-500 mb-4">
-          Sélectionnez un chauffeur pour voir ses statistiques journalières (courses terminées, annulées, revenus...).
+          Sélectionnez un zem pour voir ses statistiques journalières (courses terminées, annulées, revenus...).
         </p>
 
         <div className="flex flex-wrap gap-3 items-end mb-4">
           <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">Chauffeur</label>
+            <label className="block text-xs font-medium text-gray-700 mb-1">Zem</label>
             <select
               className="border rounded-lg px-3 py-1.5 text-sm min-w-[220px] focus:outline-none focus:ring-2 focus:ring-primary/60 focus:border-primary"
               value={driverIdInput}
               onChange={(e) => setDriverIdInput(e.target.value)}
             >
-              <option value="">Sélectionner un chauffeur</option>
+              <option value="">Sélectionner un zem</option>
               {drivers.map((d) => (
                 <option key={d.id} value={d.id.toString()}>
                   #{d.id} — {d.name} ({d.phone})
@@ -211,7 +211,7 @@ export default function DriversStatsPage() {
               ))}
             </select>
             {driversLoading && (
-              <p className="mt-1 text-xs text-gray-500">Chargement des chauffeurs...</p>
+              <p className="mt-1 text-xs text-gray-500">Chargement des zems...</p>
             )}
             {driversError && (
               <p className="mt-1 text-xs text-red-600">{driversError}</p>
@@ -239,11 +239,11 @@ export default function DriversStatsPage() {
             onClick={handleLoadDriverStats}
             className="inline-flex items-center px-4 py-2 text-sm rounded-lg bg-primary text-marine hover:bg-primary/90 font-bold"
          >
-            Charger les stats chauffeur
+            Charger les stats zem
           </button>
         </div>
 
-        {dailyLoading && <p className="text-sm text-gray-500">Chargement des statistiques du chauffeur...</p>}
+        {dailyLoading && <p className="text-sm text-gray-500">Chargement des statistiques du zem...</p>}
         {dailyError && <p className="text-sm text-red-600 mb-2">{dailyError}</p>}
 
         {!dailyLoading && dailyStats.length > 0 && (
@@ -281,17 +281,17 @@ export default function DriversStatsPage() {
         )}
 
         {!dailyLoading && driverId && dailyStats.length === 0 && !dailyError && (
-          <p className="text-sm text-gray-500 mt-2">Aucune donnée pour ce chauffeur sur la période sélectionnée.</p>
+          <p className="text-sm text-gray-500 mt-2">Aucune donnée pour ce zem sur la période sélectionnée.</p>
         )}
       </div>
 
       <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
         <h2 className="text-xl font-bold text-gray-900 mb-2">Top drivers par jour</h2>
         <p className="text-sm text-gray-500 mb-4">
-          Classement quotidien des meilleurs chauffeurs sur la période sélectionnée.
+          Classement quotidien des meilleurs zems sur la période sélectionnée.
         </p>
 
-        {topLoading && <p className="text-sm text-gray-500">Chargement du classement des chauffeurs...</p>}
+        {topLoading && <p className="text-sm text-gray-500">Chargement du classement des zems...</p>}
         {topError && <p className="text-sm text-red-600 mb-2">{topError}</p>}
 
         {!topLoading && topStats.length > 0 && (
@@ -303,14 +303,14 @@ export default function DriversStatsPage() {
                     {new Date(entry.date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })}
                   </span>
                   <span className="text-xs text-gray-500">
-                    {entry.top.length} chauffeur(s)
+                    {entry.top.length} zem(s)
                   </span>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="min-w-full text-sm">
                     <thead className="bg-white">
                       <tr>
-                        {['Chauffeur', 'Téléphone', 'Courses complétées', 'Gains driver', 'Volume brut', 'Commission'].map((h) => (
+                        {['Zem', 'Téléphone', 'Courses complétées', 'Gains zem', 'Volume brut', 'Commission'].map((h) => (
                           <th
                             key={h}
                             className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"

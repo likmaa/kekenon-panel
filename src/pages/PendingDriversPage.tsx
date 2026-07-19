@@ -5,7 +5,7 @@ import { getStoragePublicUrl } from '@/utils/storagePublicUrl';
 
 type DriverStatus = 'pending' | 'approved' | 'rejected';
 
-// Type représentant un chauffeur
+// Type représentant un zem
 interface Driver {
   id: number;
   name: string;
@@ -87,7 +87,7 @@ export default function PendingDriversPage() {
         }));
         setDrivers(mapped);
       } catch (e: any) {
-        setError(e?.response?.data?.message || "Erreur de chargement des chauffeurs en attente");
+        setError(e?.response?.data?.message || "Erreur de chargement des zems en attente");
       } finally {
         setLoading(false);
       }
@@ -110,7 +110,7 @@ export default function PendingDriversPage() {
         const res = await api.get(`/api/admin/drivers/${selectedDriver.id}/profile`);
         setDetails(res.data as DriverProfileDetails);
       } catch (e: any) {
-        setDetailsError(e?.response?.data?.message || "Erreur de chargement du dossier du chauffeur");
+        setDetailsError(e?.response?.data?.message || "Erreur de chargement du dossier du zem");
       } finally {
         setLoadingDetails(false);
       }
@@ -130,7 +130,7 @@ export default function PendingDriversPage() {
         setDetails(null);
       }
     } catch (e: any) {
-      alert(e?.response?.data?.message || "Impossible de mettre à jour le statut du chauffeur");
+      alert(e?.response?.data?.message || "Impossible de mettre à jour le statut du zem");
     }
   };
 
@@ -157,7 +157,7 @@ export default function PendingDriversPage() {
               {pendingDrivers.length}
             </span>
           </div>
-          <p className="text-xs text-gray-500 mt-1">Nouveaux chauffeurs à valider</p>
+          <p className="text-xs text-gray-500 mt-1">Nouveaux zems à valider</p>
         </header>
 
         <div className="flex-1 overflow-y-auto p-3 space-y-2">
@@ -221,7 +221,7 @@ export default function PendingDriversPage() {
               <Inbox size={40} className="text-gray-300" />
             </div>
             <h3 className="text-lg font-bold text-gray-700 font-rajdhani">Aucun dossier sélectionné</h3>
-            <p className="text-sm mt-2 max-w-sm">Sélectionnez un chauffeur dans la liste de gauche pour examiner ses informations et documents.</p>
+            <p className="text-sm mt-2 max-w-sm">Sélectionnez un zem dans la liste de gauche pour examiner ses informations et documents.</p>
           </div>
         ) : (
           <div className="flex flex-col h-full">

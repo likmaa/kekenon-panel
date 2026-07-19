@@ -207,11 +207,11 @@ export default function FinancePage() {
               : item.type === 'app_fee' ? 'Frais passager'
                 : item.type === 'subscription_fee' ? 'Pack zem'
                   : item.type === 'subscription_fee_bonus' ? 'Pack payé en bonus'
-                    : 'Prime chauffeur',
+                    : 'Prime zem',
             driver: item.type === 'ride_payment' ? 'Gain zem'
               : item.type === 'app_fee' ? 'Kêkênon'
                 : item.type.startsWith('subscription_fee') ? 'Kêkênon'
-                  : 'Prime chauffeur',
+                  : 'Prime zem',
             amount: item.amount,
             commission: (item as any).commission || 0,
             driver_payout: (item as any).payout || 0,

@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import {
   ArrowUpRight, ArrowDownRight, Users, CircleDot, DollarSign,
   Activity, AlertTriangle, UserCheck, Percent, Timer, Target, ShieldAlert, Bell, RefreshCw,
-  Hand, Hourglass, XCircle, UserX, Radar
+  Hand, Hourglass, XCircle, UserX, Radar, Car, Package, CheckCircle2
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '@/api/client';
@@ -28,7 +28,7 @@ interface OverviewData {
   avg_assignment_seconds: number | null;
 }
 
-interface TrendPoint { label: string; revenue: number; rides: number; new_users: number; }
+interface TrendPoint { label: string; revenue: number; rides: number; deliveries: number; new_users: number; }
 
 interface SystemAlert {
   severity: 'critique' | 'elevee' | 'moyenne';
@@ -46,6 +46,18 @@ interface DispatchData {
     cancelled_rides: number;
     no_driver_rides: number;
   };
+  courses: ActivityStats;
+  deliveries: ActivityStats;
+}
+
+interface ActivityStats {
+  completed_count: number;
+  active_count: number;
+  cancelled_count: number;
+  avg_duration_seconds: number | null;
+  avg_distance_m: number | null;
+  avg_fare_amount: number | null;
+  cancellation_rate_pct: number | null;
 }
 
 // --- Helpers de formatage ---
@@ -66,6 +78,9 @@ const fmtDuration = (sec: number | null): string => {
   const s = sec % 60;
   return s === 0 ? `${m} min` : `${m}m ${s}s`;
 };
+
+const fmtAverageAmount = (amount: number | null): string =>
+  amount === null || amount === undefined ? '—' : fmtXOF(amount);
 
 // --- Composants ---
 const DashboardSkeleton = () => (
@@ -92,17 +107,16 @@ type StatCardProps = {
   change?: string;
   changeType?: ChangeType;
   description?: string;
-  colorTheme?: 'blue' | 'green' | 'orange' | 'red' | 'purple';
+  colorTheme?: 'green' | 'amber' | 'red' | 'neutral';
   onClick?: () => void;
 };
 
-const StatCard: React.FC<StatCardProps> = ({ title, value, icon: Icon, change, changeType, description, colorTheme = 'orange', onClick }) => {
+const StatCard: React.FC<StatCardProps> = ({ title, value, icon: Icon, change, changeType, description, colorTheme = 'amber', onClick }) => {
   const themeStyles = {
-    blue: 'bg-amber-50 text-amber-600',
-    green: 'bg-green-50 text-green-600',
-    orange: 'bg-orange-50 text-orange-600',
-    red: 'bg-red-50 text-red-600',
-    purple: 'bg-purple-50 text-purple-600',
+    green: 'bg-brand-green/10 text-brand-green-dark ring-1 ring-brand-green/20',
+    amber: 'bg-primary/20 text-amber-800 ring-1 ring-primary/30',
+    red: 'bg-red-50 text-red-600 ring-1 ring-red-100',
+    neutral: 'bg-gray-100 text-gray-700 ring-1 ring-gray-200',
   };
   const isPositive = changeType === 'positive';
   const isNegative = changeType === 'negative';
@@ -140,8 +154,8 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon: Icon, change, c
 // Panneau d'alertes classées (Bloc 5)
 const severityConfig: Record<SystemAlert['severity'], { label: string; dot: string; box: string; text: string }> = {
   critique: { label: 'Critique', dot: 'bg-red-500', box: 'bg-red-50 border-red-200', text: 'text-red-700' },
-  elevee: { label: 'Élevée', dot: 'bg-orange-500', box: 'bg-orange-50 border-orange-200', text: 'text-orange-700' },
-  moyenne: { label: 'Moyenne', dot: 'bg-yellow-500', box: 'bg-yellow-50 border-yellow-200', text: 'text-yellow-700' },
+  elevee: { label: 'Élevée', dot: 'bg-red-400', box: 'bg-red-50 border-red-100', text: 'text-red-700' },
+  moyenne: { label: 'Moyenne', dot: 'bg-primary-dark', box: 'bg-primary/10 border-primary/30', text: 'text-amber-800' },
 };
 
 const AlertsPanel: React.FC<{ alerts: SystemAlert[] }> = ({ alerts }) => (
@@ -181,12 +195,76 @@ const AlertsPanel: React.FC<{ alerts: SystemAlert[] }> = ({ alerts }) => (
   </div>
 );
 
+const ActivityStatsPanel: React.FC<{
+  title: string;
+  subtitle: string;
+  icon: React.ElementType;
+  stats: ActivityStats;
+  theme: 'course' | 'delivery';
+}> = ({ title, subtitle, icon: Icon, stats, theme }) => {
+  const colors = theme === 'course'
+    ? {
+        shell: 'border-brand-green/30 bg-gradient-to-br from-brand-green/10 to-white',
+        icon: 'bg-brand-green text-white',
+        accent: 'text-brand-green-dark',
+      }
+    : {
+        shell: 'border-primary/50 bg-gradient-to-br from-primary/15 to-white',
+        icon: 'bg-primary text-dark',
+        accent: 'text-amber-800',
+      };
+
+  const metrics = theme === 'course'
+    ? [
+        { label: 'En cours', value: stats.active_count, icon: CircleDot },
+        { label: 'Terminées', value: stats.completed_count, icon: CheckCircle2 },
+        { label: 'Distance moyenne', value: stats.avg_distance_m === null ? '—' : `${(stats.avg_distance_m / 1000).toFixed(1)} km`, icon: Activity },
+        { label: 'Montant moyen', value: fmtAverageAmount(stats.avg_fare_amount), icon: DollarSign },
+      ]
+    : [
+        { label: 'En cours', value: stats.active_count, icon: CircleDot },
+        { label: 'Terminées', value: stats.completed_count, icon: CheckCircle2 },
+        { label: 'Annulées', value: stats.cancelled_count, icon: XCircle },
+        { label: 'Montant moyen', value: fmtAverageAmount(stats.avg_fare_amount), icon: DollarSign },
+      ];
+
+  return (
+    <div className={`rounded-2xl border p-5 shadow-sm ${colors.shell}`}>
+      <div className="mb-5 flex items-center gap-3">
+        <div className={`flex h-11 w-11 items-center justify-center rounded-xl shadow-sm ${colors.icon}`}>
+          <Icon size={22} />
+        </div>
+        <div>
+          <h3 className="font-bold text-gray-900">{title}</h3>
+          <p className="text-xs text-gray-500">{subtitle}</p>
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
+        {metrics.map((metric) => {
+          const MetricIcon = metric.icon;
+          return (
+            <div key={metric.label} className="rounded-xl border border-white/80 bg-white/85 p-3 shadow-sm">
+              <div className={`mb-2 flex items-center gap-1.5 text-xs font-semibold ${colors.accent}`}>
+                <MetricIcon size={14} />
+                <span>{metric.label}</span>
+              </div>
+              <p className="text-xl font-black text-gray-900">{metric.value}</p>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
 export default function DashboardOverview() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [overview, setOverview] = useState<OverviewData | null>(null);
   const [alerts, setAlerts] = useState<SystemAlert[]>([]);
   const [dispatch, setDispatch] = useState<DispatchData['dispatch'] | null>(null);
+  const [courseStats, setCourseStats] = useState<ActivityStats | null>(null);
+  const [deliveryStats, setDeliveryStats] = useState<ActivityStats | null>(null);
   const [revenueOpen, setRevenueOpen] = useState(false);
   const navigate = useNavigate();
   const [granularity, setGranularity] = useState<Granularity>('day');
@@ -204,6 +282,8 @@ export default function DashboardOverview() {
       setOverview(overviewRes.data);
       setAlerts(alertsRes.data?.alerts ?? []);
       setDispatch(dispatchRes.data?.dispatch ?? null);
+      setCourseStats(dispatchRes.data?.courses ?? null);
+      setDeliveryStats(dispatchRes.data?.deliveries ?? null);
     } catch (e: any) {
       setError(e?.response?.data?.message || 'Impossible de charger le cockpit');
     } finally {
@@ -295,8 +375,8 @@ export default function DashboardOverview() {
             </div>
           </div>
 
-          {/* Bloc 1 — KPI Temps Réel (les 7 autres) */}
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
+          {/* Synthèse générale, sans répéter les indicateurs du monitoring */}
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-5">
             <StatCard
               title="Chiffre d'affaires aujourd'hui"
               value={fmtXOF(overview.today_revenue.amount)}
@@ -314,9 +394,8 @@ export default function DashboardOverview() {
               colorTheme="green"
               onClick={() => setRevenueOpen(true)}
             />
-            <StatCard title="Chauffeurs connectés" value={overview.online_drivers} icon={Users} colorTheme="orange" />
-            <StatCard title="Courses en cours" value={overview.active_rides} icon={CircleDot} colorTheme="orange" />
-            <StatCard title="Utilisateurs actifs" value={overview.active_users_30d} icon={UserCheck} description="30 derniers jours" colorTheme="purple" />
+            <StatCard title="Zems connectés" value={overview.online_drivers} icon={Users} colorTheme="amber" />
+            <StatCard title="Utilisateurs actifs" value={overview.active_users_30d} icon={UserCheck} description="30 derniers jours" colorTheme="neutral" />
             <StatCard
               title="Taux d'acceptation"
               value={overview.acceptance_rate_pct !== null ? `${overview.acceptance_rate_pct}%` : '—'}
@@ -324,33 +403,53 @@ export default function DashboardOverview() {
               description="courses du jour"
               colorTheme={overview.acceptance_rate_pct !== null && overview.acceptance_rate_pct < 70 ? 'red' : 'green'}
             />
-            <StatCard
-              title="Temps moyen d'attribution"
-              value={fmtDuration(overview.avg_assignment_seconds)}
-              icon={Timer}
-              description="aujourd'hui"
-              colorTheme="orange"
-            />
           </div>
         </>
       )}
 
+      {courseStats && deliveryStats && (
+        <section>
+          <div className="mb-3">
+            <h2 className="text-lg font-bold text-gray-900">Activités du jour</h2>
+            <p className="text-sm text-gray-500">Les courses zem et les livraisons sont calculées séparément.</p>
+          </div>
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <ActivityStatsPanel
+              title="Courses zem"
+              subtitle="Transport de passagers"
+              icon={Car}
+              stats={courseStats}
+              theme="course"
+            />
+            <ActivityStatsPanel
+              title="Livraisons"
+              subtitle="Colis et courses de livraison"
+              icon={Package}
+              stats={deliveryStats}
+              theme="delivery"
+            />
+          </div>
+        </section>
+      )}
+
       {/* Bloc 3 — Monitoring Dispatch */}
       {dispatch && (
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+        <div className="bg-white p-6 rounded-2xl border border-primary/25 shadow-sm">
           <div className="flex items-center gap-2 mb-4">
-            <Radar size={18} className="text-gray-700" />
-            <h3 className="text-lg font-bold text-gray-900">Monitoring Dispatch</h3>
+            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/20 text-amber-800">
+              <Radar size={18} />
+            </span>
+            <h3 className="text-lg font-bold text-gray-900">Monitoring dispatch zem</h3>
             <span className="text-xs text-gray-400">· aujourd'hui</span>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
             {[
-              { icon: Timer, label: "Temps moyen d'attribution", value: fmtDuration(dispatch.avg_assignment_seconds), tone: 'text-amber-600 bg-amber-50' },
-              { icon: Hourglass, label: 'Temps moyen de prise en charge', value: fmtDuration(dispatch.avg_pickup_seconds), tone: 'text-indigo-600 bg-indigo-50' },
-              { icon: Hand, label: 'Courses refusées', value: dispatch.refused_rides, tone: 'text-orange-600 bg-orange-50', category: 'refused' },
-              { icon: AlertTriangle, label: 'Courses expirées (timeout)', value: dispatch.expired_rides, tone: 'text-amber-600 bg-amber-50', category: 'expired' },
+              { icon: Timer, label: "Temps moyen d'attribution", value: fmtDuration(dispatch.avg_assignment_seconds), tone: 'text-gray-700 bg-gray-100' },
+              { icon: Hourglass, label: 'Temps moyen de prise en charge', value: fmtDuration(dispatch.avg_pickup_seconds), tone: 'text-brand-green-dark bg-brand-green/10' },
+              { icon: Hand, label: 'Courses refusées', value: dispatch.refused_rides, tone: 'text-amber-800 bg-primary/15', category: 'refused' },
+              { icon: AlertTriangle, label: 'Courses expirées (timeout)', value: dispatch.expired_rides, tone: 'text-red-600 bg-red-50', category: 'expired' },
               { icon: XCircle, label: 'Courses annulées', value: dispatch.cancelled_rides, tone: 'text-red-600 bg-red-50', category: 'cancelled' },
-              { icon: UserX, label: 'Sans chauffeur (en attente)', value: dispatch.no_driver_rides, tone: 'text-rose-600 bg-rose-50', category: 'no_driver' },
+              { icon: UserX, label: 'Sans zem (en attente)', value: dispatch.no_driver_rides, tone: 'text-red-600 bg-red-50', category: 'no_driver' },
             ].map((m, i) => {
               const Icon = m.icon;
               const clickable = !!(m as { category?: string }).category;
@@ -370,7 +469,7 @@ export default function DashboardOverview() {
             })}
           </div>
           <p className="text-[11px] text-gray-400 mt-3">
-            « Expirées » = courses passées en timeout (aucun chauffeur sous 10 min, expiration automatique). « Sans chauffeur » = demandes encore en attente d'attribution depuis plus de 5 min.
+            « Expirées » = courses passées en timeout (aucun zem sous 10 min, expiration automatique). « Sans zem » = demandes encore en attente d'attribution depuis plus de 5 min.
           </p>
         </div>
       )}
@@ -381,7 +480,7 @@ export default function DashboardOverview() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
             <div>
               <h3 className="text-lg font-bold text-gray-900">Évolution de l'activité</h3>
-              <p className="text-sm text-gray-500">Revenus, courses et nouveaux utilisateurs</p>
+              <p className="text-sm text-gray-500">Revenus, courses zem, livraisons et nouveaux utilisateurs</p>
             </div>
             <div className="flex gap-1 bg-gray-100 p-1 rounded-lg">
               {granularityTabs.map((t) => (
@@ -412,7 +511,7 @@ export default function DashboardOverview() {
                       contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                       formatter={(v: any) => [fmtXOF(v), 'Revenus']}
                     />
-                    <Line type="monotone" dataKey="revenue" stroke="#10B981" strokeWidth={3} dot={{ r: 3, strokeWidth: 2, fill: '#fff' }} activeDot={{ r: 5 }} />
+                    <Line type="monotone" dataKey="revenue" stroke="#37BD6B" strokeWidth={3} dot={{ r: 3, strokeWidth: 2, fill: '#fff' }} activeDot={{ r: 5 }} />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -421,15 +520,20 @@ export default function DashboardOverview() {
             {/* Courses + Nouveaux utilisateurs */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <p className="text-xs font-bold uppercase tracking-wide text-gray-400 mb-2">Courses terminées</p>
+                <p className="text-xs font-bold uppercase tracking-wide text-gray-400 mb-2">Activités terminées</p>
                 <div className="h-[170px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={trends} margin={{ top: 5, right: 0, bottom: 5, left: -20 }}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
                       <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#9CA3AF' }} dy={6} />
                       <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#9CA3AF' }} allowDecimals={false} />
-                      <RechartsTooltip cursor={{ fill: '#F3F4F6' }} contentStyle={{ borderRadius: '12px', border: 'none' }} formatter={(v: any) => [`${v} courses`, 'Courses']} />
-                      <Bar dataKey="rides" fill="#3B82F6" radius={[4, 4, 0, 0]} />
+                      <RechartsTooltip
+                        cursor={{ fill: '#F3F4F6' }}
+                        contentStyle={{ borderRadius: '12px', border: 'none' }}
+                        formatter={(v: any, name: any) => [`${v}`, name === 'rides' ? 'Courses zem' : 'Livraisons']}
+                      />
+                      <Bar dataKey="rides" fill="#37BD6B" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="deliveries" fill="#FDD835" radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -443,7 +547,7 @@ export default function DashboardOverview() {
                       <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#9CA3AF' }} dy={6} />
                       <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#9CA3AF' }} allowDecimals={false} />
                       <RechartsTooltip cursor={{ fill: '#F3F4F6' }} contentStyle={{ borderRadius: '12px', border: 'none' }} formatter={(v: any) => [`${v} inscrits`, 'Nouveaux']} />
-                      <Bar dataKey="new_users" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="new_users" fill="#4B5563" radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>

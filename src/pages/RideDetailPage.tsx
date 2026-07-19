@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Navigation, MapPin, Clock, User, Car, CreditCard, Loader2, Gauge } from 'lucide-react';
+import { ArrowLeft, Navigation, MapPin, Clock, User, Car, CreditCard, Loader2, Gauge, Package } from 'lucide-react';
 import { api } from '@/api/client';
 
 interface RideDetail {
@@ -11,6 +11,13 @@ interface RideDetail {
   passenger_phone: string | null;
   driver_name: string | null;
   driver_phone: string | null;
+  service_type: 'course' | 'livraison';
+  recipient_name: string | null;
+  recipient_phone: string | null;
+  package_description: string | null;
+  package_size: 'small' | 'medium' | 'large' | null;
+  package_weight: string | null;
+  is_fragile: boolean;
   pickup_address: string | null;
   dropoff_address: string | null;
   approach_km: number | null;
@@ -95,7 +102,7 @@ export default function RideDetailPage() {
   const bd = ride.breakdown ?? {};
   const timeline: { label: string; at: string | null }[] = [
     { label: 'Demande créée', at: ride.created_at },
-    { label: 'Chauffeur a accepté', at: ride.accepted_at },
+    { label: 'Zem a accepté', at: ride.accepted_at },
     { label: 'Arrivé au point de prise en charge', at: ride.arrived_at },
     { label: 'Prise en charge (départ)', at: ride.started_at },
     { label: ride.status === 'cancelled' ? 'Annulée' : 'Terminée', at: ride.completed_at ?? ride.cancelled_at },
@@ -105,7 +112,7 @@ export default function RideDetailPage() {
     <div className="p-6 max-w-5xl mx-auto">
       <div className="flex items-center gap-3 mb-5">
         <button onClick={() => navigate(-1)} className="text-gray-400 hover:text-gray-700"><ArrowLeft size={22} /></button>
-        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Course #{ride.id}</h1>
+        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">{ride.service_type === 'livraison' ? 'Livraison' : 'Course'} #{ride.id}</h1>
         <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${st.cls}`}>{st.label}</span>
         {ride.cancellation_reason && <span className="text-xs text-gray-400">({ride.cancellation_reason})</span>}
       </div>
@@ -113,7 +120,7 @@ export default function RideDetailPage() {
       {/* Métriques clés */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <MetricCard icon={<Navigation size={18} />} tone="bg-amber-50 text-amber-600"
-          label="Approche (chauffeur → client)" value={ride.approach_km != null ? `${ride.approach_km} km` : '—'} />
+          label="Approche (zem → client)" value={ride.approach_km != null ? `${ride.approach_km} km` : '—'} />
         <MetricCard icon={<MapPin size={18} />} tone="bg-emerald-50 text-emerald-600"
           label="Distance course (→ destination)" value={ride.ride_km != null ? `${ride.ride_km} km` : '—'} />
         <MetricCard icon={<Clock size={18} />} tone="bg-amber-50 text-amber-600"
@@ -177,13 +184,33 @@ export default function RideDetailPage() {
             </div>
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-gray-50 text-gray-600"><Car size={18} /></div>
-              <div><p className="text-xs text-gray-400">Chauffeur {ride.vehicle_type ? `· ${ride.vehicle_type}` : ''}</p><p className="text-sm font-semibold text-gray-900">{ride.driver_name || 'Non assigné'}</p><p className="text-xs text-gray-500">{ride.driver_phone || ''}</p></div>
+              <div><p className="text-xs text-gray-400">Zem {ride.vehicle_type ? `· ${ride.vehicle_type}` : ''}</p><p className="text-sm font-semibold text-gray-900">{ride.driver_name || 'Non assigné'}</p><p className="text-xs text-gray-500">{ride.driver_phone || ''}</p></div>
             </div>
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-gray-50 text-gray-600"><CreditCard size={18} /></div>
               <div><p className="text-xs text-gray-400">Paiement {ride.payment_status ? `· ${ride.payment_status}` : ''}</p><p className="text-sm font-semibold text-gray-900">{PAYMENT_LABELS[ride.payment_method ?? ''] ?? ride.payment_method ?? '—'}</p></div>
             </div>
           </div>
+
+          {ride.service_type === 'livraison' ? (
+            <div className="bg-amber-50 p-6 rounded-2xl border border-amber-100 shadow-sm">
+              <div className="flex items-center gap-2 mb-4 text-amber-800">
+                <Package size={18} />
+                <h2 className="text-sm font-bold uppercase tracking-wider">colis et destinataire</h2>
+              </div>
+              <p className="font-semibold text-gray-900">{ride.package_description || '—'}</p>
+              <p className="mt-2 text-sm text-gray-600">
+                taille {ride.package_size === 'small' ? 'petite' : ride.package_size === 'large' ? 'grande' : 'moyenne'}
+                {ride.package_weight ? ` · ${ride.package_weight} kg` : ''}
+                {ride.is_fragile ? ' · fragile' : ''}
+              </p>
+              <div className="mt-4 border-t border-amber-100 pt-4">
+                <p className="text-xs text-gray-400">Destinataire</p>
+                <p className="text-sm font-semibold text-gray-900">{ride.recipient_name || '—'}</p>
+                <p className="text-xs text-gray-500">{ride.recipient_phone || ''}</p>
+              </div>
+            </div>
+          ) : null}
         </div>
 
         {/* Facture + chronologie */}
@@ -201,6 +228,7 @@ export default function RideDetailPage() {
               <FareLine label="Attente & arrêts" value={Number(bd.stop_fare ?? 0) + Number(bd.pickup_waiting_fare ?? 0)} />
             )}
             {Number(bd.luggage_fare ?? 0) > 0 && <FareLine label="Bagages" value={Number(bd.luggage_fare)} />}
+            {Number(bd.delivery_fare ?? 0) > 0 && <FareLine label="Supplément livraison" value={Number(bd.delivery_fare)} />}
             {ride.discount_amount > 0 && <FareLine label="Réduction" value={-ride.discount_amount} />}
             <FareLine label="Montant de la course" value={ride.fare} bold />
           </div>

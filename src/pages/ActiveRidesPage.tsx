@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { api } from '@/api/client';
-import { Car, MapPin, Navigation, Clock, XCircle, RefreshCw, User, Phone, PlusCircle, AlertTriangle, ShieldAlert, CheckCircle2 } from 'lucide-react';
+import { Car, MapPin, Navigation, Clock, XCircle, RefreshCw, User, Phone, PlusCircle, AlertTriangle, ShieldAlert, CheckCircle2, Package } from 'lucide-react';
 import { getPusher } from '@/api/pusher';
 import { toast } from 'react-hot-toast';
 import Map, { Marker, Source, Layer, NavigationControl } from 'react-map-gl';
@@ -36,7 +36,24 @@ interface Ride {
     passenger_phone?: string | null;
     vehicle_type?: 'standard' | 'vip';
     has_baggage?: boolean;
+    service_type?: 'course' | 'livraison';
+    recipient_name?: string | null;
+    recipient_phone?: string | null;
+    package_description?: string | null;
+    package_size?: 'small' | 'medium' | 'large' | null;
+    package_weight?: string | null;
+    is_fragile?: boolean;
 }
+
+type ActivityStats = {
+    completed_count: number;
+    active_count: number;
+    cancelled_count: number;
+    avg_duration_seconds: number | null;
+    avg_distance_m: number | null;
+    avg_fare_amount: number | null;
+    cancellation_rate_pct: number | null;
+};
 
 export default function ActiveRidesPage() {
     const [rides, setRides] = useState<Ride[]>([]);
@@ -49,13 +66,8 @@ export default function ActiveRidesPage() {
     const [onlineDrivers, setOnlineDrivers] = useState<any[]>([]);
     const [loadingDrivers, setLoadingDrivers] = useState(false);
     const [activeTab, setActiveTab] = useState<'all' | 'waiting' | 'approaching' | 'ongoing'>('all');
-    const [courseStats, setCourseStats] = useState<{
-        completed_count: number;
-        avg_duration_seconds: number | null;
-        avg_distance_m: number | null;
-        avg_fare_amount: number | null;
-        cancellation_rate_pct: number | null;
-    } | null>(null);
+    const [courseStats, setCourseStats] = useState<ActivityStats | null>(null);
+    const [deliveryStats, setDeliveryStats] = useState<ActivityStats | null>(null);
 
     const [driverLocation, setDriverLocation] = useState<{ lat: number; lng: number } | null>(null);
     const [routeCoords, setRouteCoords] = useState<[number, number][]>([]);
@@ -82,7 +94,7 @@ export default function ActiveRidesPage() {
         };
     }, [routeCoords, selectedRide]);
 
-    // Recentre la carte sur le chauffeur (ou le point de départ) — remplace l'ancien MapUpdater
+    // Recentre la carte sur le zem (ou le point de départ) — remplace l'ancien MapUpdater
     useEffect(() => {
         const c = driverLocation
             ?? (selectedRide?.pickup_lat && selectedRide?.pickup_lng ? { lat: selectedRide.pickup_lat, lng: selectedRide.pickup_lng } : null);
@@ -200,6 +212,7 @@ export default function ActiveRidesPage() {
         try {
             const res = await api.get('/api/admin/stats/dispatch');
             setCourseStats(res.data?.courses ?? null);
+            setDeliveryStats(res.data?.deliveries ?? null);
         } catch {
             // KPI non bloquants
         }
@@ -251,7 +264,7 @@ export default function ActiveRidesPage() {
     };
 
     const handleComplete = async (rideId: number) => {
-        if (!window.confirm('Valider et terminer cette course ? Le tarif et la commission seront calculés normalement. À utiliser si l\'app du chauffeur a planté.')) return;
+        if (!window.confirm('Valider et terminer cette course ? Le tarif et la commission seront calculés normalement. À utiliser si l\'app du zem a planté.')) return;
 
         try {
             setCompletingId(rideId);
@@ -273,7 +286,7 @@ export default function ActiveRidesPage() {
             const res = await api.get('/api/admin/drivers/online?online=1');
             setOnlineDrivers(res.data.data || res.data || []);
         } catch (error) {
-            toast.error('Erreur lors du chargement des chauffeurs');
+            toast.error('Erreur lors du chargement des zems');
         } finally {
             setLoadingDrivers(false);
         }
@@ -283,7 +296,7 @@ export default function ActiveRidesPage() {
         if (!selectedRideId) return;
         try {
             await api.post(`/api/admin/rides/${selectedRideId}/assign`, { driver_id: driverId });
-            toast.success('Chauffeur assigné');
+            toast.success('Zem assigné');
             setIsAssignModalOpen(false);
             fetchRides();
         } catch (error) {
@@ -315,7 +328,7 @@ export default function ActiveRidesPage() {
             case 'accepted':
             case 'arrived':
                 return {
-                    label: status === 'arrived' ? 'Chauffeur sur place' : 'Chauffeur en approche',
+                    label: status === 'arrived' ? 'Zem sur place' : 'Zem en approche',
                     group: 'approaching',
                     color: 'text-amber-700 bg-amber-100 border-amber-200',
                     dot: 'bg-amber-500',
@@ -360,7 +373,7 @@ export default function ActiveRidesPage() {
                         </span>
                         Opérations Live
                     </h2>
-                    <p className="text-sm text-gray-500 mt-1">Supervision temps réel du terrain VTC</p>
+                    <p className="text-sm text-gray-500 mt-1">Supervision temps réel des courses et livraisons zem</p>
                 </div>
                 
                 <div className="flex gap-2">
@@ -381,21 +394,53 @@ export default function ActiveRidesPage() {
                 </div>
             </div>
 
-            {/* KPI Module Courses (§20.4) — aujourd'hui */}
+            {/* KPI courses zem — aujourd'hui */}
             {courseStats && (
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
-                    {[
-                        { label: 'Terminées (jour)', value: courseStats.completed_count },
-                        { label: 'Durée moyenne', value: courseStats.avg_duration_seconds != null ? `${Math.round(courseStats.avg_duration_seconds / 60)} min` : '—' },
-                        { label: 'Distance moyenne', value: courseStats.avg_distance_m != null ? `${(courseStats.avg_distance_m / 1000).toFixed(1)} km` : '—' },
-                        { label: 'Montant moyen', value: courseStats.avg_fare_amount != null ? `${courseStats.avg_fare_amount.toLocaleString('fr-FR')} F` : '—' },
-                        { label: "Taux d'annulation", value: courseStats.cancellation_rate_pct != null ? `${courseStats.cancellation_rate_pct}%` : '—', alert: (courseStats.cancellation_rate_pct ?? 0) >= 30 },
-                    ].map((k, i) => (
-                        <div key={i} className="bg-white rounded-xl border border-gray-200 p-3 shadow-sm">
-                            <p className={`text-xl font-bold ${k.alert ? 'text-red-600' : 'text-gray-900'}`}>{k.value}</p>
-                            <p className="text-[11px] text-gray-500 font-medium mt-0.5">{k.label}</p>
-                        </div>
-                    ))}
+                <div className="mb-4 rounded-2xl border border-emerald-100 bg-emerald-50/40 p-4">
+                    <div className="mb-3 flex items-center gap-2">
+                        <Car size={18} className="text-emerald-700" />
+                        <h3 className="font-bold text-emerald-950">Statistiques courses zem</h3>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
+                        {[
+                            { label: 'Actives', value: courseStats.active_count },
+                            { label: 'Terminées', value: courseStats.completed_count },
+                            { label: 'Annulées', value: courseStats.cancelled_count },
+                            { label: 'Distance moyenne', value: courseStats.avg_distance_m != null ? `${(courseStats.avg_distance_m / 1000).toFixed(1)} km` : '—' },
+                            { label: 'Montant moyen', value: courseStats.avg_fare_amount != null ? `${courseStats.avg_fare_amount.toLocaleString('fr-FR')} F` : '—' },
+                            { label: "Taux d'annulation", value: courseStats.cancellation_rate_pct != null ? `${courseStats.cancellation_rate_pct}%` : '—', alert: (courseStats.cancellation_rate_pct ?? 0) >= 30 },
+                        ].map((k, i) => (
+                            <div key={i} className="bg-white rounded-xl border border-emerald-100 p-3 shadow-sm">
+                                <p className={`text-xl font-bold ${k.alert ? 'text-red-600' : 'text-gray-900'}`}>{k.value}</p>
+                                <p className="text-[11px] text-gray-500 font-medium mt-0.5">{k.label}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {/* KPI livraisons — volontairement séparés des courses */}
+            {deliveryStats && (
+                <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50/60 p-4">
+                    <div className="mb-3 flex items-center gap-2">
+                        <Package size={18} className="text-amber-700" />
+                        <h3 className="font-bold text-amber-950">Statistiques livraisons</h3>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
+                        {[
+                            { label: 'Actives', value: deliveryStats.active_count },
+                            { label: 'Terminées', value: deliveryStats.completed_count },
+                            { label: 'Annulées', value: deliveryStats.cancelled_count },
+                            { label: 'Distance moyenne', value: deliveryStats.avg_distance_m != null ? `${(deliveryStats.avg_distance_m / 1000).toFixed(1)} km` : '—' },
+                            { label: 'Montant moyen', value: deliveryStats.avg_fare_amount != null ? `${deliveryStats.avg_fare_amount.toLocaleString('fr-FR')} F` : '—' },
+                            { label: "Taux d'annulation", value: deliveryStats.cancellation_rate_pct != null ? `${deliveryStats.cancellation_rate_pct}%` : '—', alert: (deliveryStats.cancellation_rate_pct ?? 0) >= 30 },
+                        ].map((k, i) => (
+                            <div key={i} className="bg-white rounded-xl border border-amber-200 p-3 shadow-sm">
+                                <p className={`text-xl font-bold ${k.alert ? 'text-red-600' : 'text-gray-900'}`}>{k.value}</p>
+                                <p className="text-[11px] text-gray-500 font-medium mt-0.5">{k.label}</p>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             )}
 
@@ -453,6 +498,11 @@ export default function ActiveRidesPage() {
                                                     <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border ${config.color}`}>
                                                         {config.label}
                                                     </span>
+                                                    {ride.service_type === 'livraison' ? (
+                                                        <span className="inline-flex items-center gap-1 text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                                                            <Package size={11} /> Livraison
+                                                        </span>
+                                                    ) : null}
                                                 </div>
                                                 <p className={`text-xs font-semibold flex items-center gap-1 ${config.isAlert ? 'text-red-600' : 'text-gray-500'}`}>
                                                     <Clock size={12} /> {timeElapsed}
@@ -464,6 +514,17 @@ export default function ActiveRidesPage() {
                                                 <div className="text-[10px] text-gray-500 font-medium uppercase mt-0.5">{ride.vehicle_type === 'vip' ? 'VIP' : 'Standard'}</div>
                                             </div>
                                         </div>
+
+                                        {ride.service_type === 'livraison' ? (
+                                            <div className="mb-3 rounded-lg border border-amber-100 bg-amber-50/70 p-2.5 text-xs text-amber-900">
+                                                <p className="font-bold">{ride.package_description || 'Colis'}</p>
+                                                <p className="mt-0.5 text-amber-700">
+                                                    destinataire : {ride.recipient_name || '—'}
+                                                    {ride.package_weight ? ` · ${ride.package_weight} kg` : ''}
+                                                    {ride.is_fragile ? ' · fragile' : ''}
+                                                </p>
+                                            </div>
+                                        ) : null}
 
                                         <div className="relative pl-4 border-l-2 border-gray-100 space-y-3 mb-4 mt-2">
                                             <div className="relative">
@@ -485,7 +546,7 @@ export default function ActiveRidesPage() {
                                             </div>
                                             <div className="w-px h-6 bg-gray-200"></div>
                                             <div className="flex-1 min-w-0">
-                                                <p className="text-[10px] text-gray-500 font-bold uppercase">Chauffeur</p>
+                                                <p className="text-[10px] text-gray-500 font-bold uppercase">Zem</p>
                                                 <p className={`text-xs font-bold truncate ${ride.driver ? 'text-gray-900' : 'text-orange-500'}`}>
                                                     {ride.driver?.name || 'Recherche...'}
                                                 </p>
@@ -507,7 +568,7 @@ export default function ActiveRidesPage() {
                                                     <button
                                                         onClick={(e) => { e.stopPropagation(); handleComplete(ride.id); }}
                                                         disabled={completingId === ride.id}
-                                                        title="Valider la course (récupération après crash de l'app chauffeur)"
+                                                        title="Valider la course (récupération après crash de l'app zem)"
                                                         className="flex-1 py-1.5 bg-green-600 text-white rounded text-xs font-bold hover:bg-green-700 transition-colors flex items-center justify-center gap-1 disabled:opacity-60"
                                                     >
                                                         {completingId === ride.id ? '...' : (<><CheckCircle2 size={13} /> Valider</>)}
@@ -543,7 +604,7 @@ export default function ActiveRidesPage() {
                                     <Navigation size={32} />
                                 </div>
                                 <h3 className="text-lg font-bold text-gray-900 mb-2">Prêt pour le suivi</h3>
-                                <p className="text-sm text-gray-500">Sélectionnez une course à gauche pour visualiser le trajet et la position du chauffeur en temps réel.</p>
+                                <p className="text-sm text-gray-500">Sélectionnez une course à gauche pour visualiser le trajet et la position du zem en temps réel.</p>
                             </div>
                         </div>
                     ) : null}
@@ -594,10 +655,10 @@ export default function ActiveRidesPage() {
                                         </Marker>
                                     )}
 
-                                    {/* Position réelle du chauffeur */}
+                                    {/* Position réelle du zem */}
                                     {driverLocation && (
                                         <Marker longitude={driverLocation.lng} latitude={driverLocation.lat} anchor="center">
-                                            <div className="relative group cursor-pointer" title={selectedRide.driver?.name ?? 'Chauffeur'}>
+                                            <div className="relative group cursor-pointer" title={selectedRide.driver?.name ?? 'Zem'}>
                                                 <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity font-bold">
                                                     {selectedRide.driver?.name}
                                                 </div>
@@ -623,7 +684,7 @@ export default function ActiveRidesPage() {
                                             <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest">Tracking Live</p>
                                             <span className="flex h-2 w-2 rounded-full bg-green-500"></span>
                                         </div>
-                                        <p className="text-base font-bold text-gray-900">{selectedRide.driver?.name || 'Chauffeur en attente'}</p>
+                                        <p className="text-base font-bold text-gray-900">{selectedRide.driver?.name || 'Zem en attente'}</p>
                                         <p className="text-xs text-gray-500 font-medium flex items-center gap-1">
                                             <Phone size={12} /> {selectedRide.driver?.phone || '—'}
                                         </p>
@@ -665,7 +726,7 @@ export default function ActiveRidesPage() {
                                         }
                                     }}
                                     className="p-3 bg-gray-50 hover:bg-gray-100 rounded-xl border border-gray-200 text-gray-600 transition-all shadow-sm"
-                                    title="Recentrer sur le chauffeur"
+                                    title="Recentrer sur le zem"
                                 >
                                     <Navigation size={20} />
                                 </button>
@@ -681,14 +742,14 @@ export default function ActiveRidesPage() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
                     <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[80vh]">
                         <div className="p-6 border-b border-gray-100 flex justify-between items-center">
-                            <h3 className="text-xl font-bold text-gray-900">Assigner un chauffeur</h3>
+                            <h3 className="text-xl font-bold text-gray-900">Assigner un zem</h3>
                             <button onClick={() => setIsAssignModalOpen(false)} className="text-gray-400 hover:text-gray-600"><XCircle size={24} /></button>
                         </div>
                         <div className="p-4 overflow-y-auto flex-1 bg-gray-50/50">
                             {loadingDrivers ? (
-                                <div className="p-8 text-center text-gray-500">Chargement des chauffeurs en ligne...</div>
+                                <div className="p-8 text-center text-gray-500">Chargement des zems en ligne...</div>
                             ) : onlineDrivers.length === 0 ? (
-                                <div className="p-8 text-center text-gray-500">Aucun chauffeur en ligne pour le moment.</div>
+                                <div className="p-8 text-center text-gray-500">Aucun zem en ligne pour le moment.</div>
                             ) : (
                                 <div className="space-y-3">
                                     {onlineDrivers.filter(d => d.is_online).map(driver => (

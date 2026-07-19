@@ -74,7 +74,7 @@ const DriverProfileModal = ({ driver, onClose }: { driver: OnlineDriver | null; 
         const res = await api.get(`/api/admin/drivers/${driver.id}/profile`);
         setDetails(res.data as DriverProfileDetails);
       } catch (e: any) {
-        setError(e?.response?.data?.message || 'Erreur de chargement du dossier du chauffeur');
+        setError(e?.response?.data?.message || 'Erreur de chargement du dossier du zem');
       } finally {
         setLoading(false);
       }
@@ -97,7 +97,7 @@ const DriverProfileModal = ({ driver, onClose }: { driver: OnlineDriver | null; 
         onClick={(e) => e.stopPropagation()}
       >
         <header className="flex items-center justify-between p-4 border-b border-gray-200 flex-shrink-0">
-          <h3 className="text-lg font-bold text-gray-900">Dossier du Chauffeur : {driver.name}</h3>
+          <h3 className="text-lg font-bold text-gray-900">Dossier du zem : {driver.name}</h3>
           <button
             onClick={onClose}
             className="p-1 rounded-full text-gray-500 hover:bg-gray-100 hover:text-gray-800"
@@ -142,7 +142,7 @@ const DriverProfileModal = ({ driver, onClose }: { driver: OnlineDriver | null; 
                   </p>
                 </div>
                 <div className="md:col-span-1">
-                  <h4 className="text-sm font-semibold text-gray-700 mb-2">Profil chauffeur</h4>
+                  <h4 className="text-sm font-semibold text-gray-700 mb-2">Profil zem</h4>
                   <p className="text-sm text-gray-800 flex items-center gap-2">
                     <span className="font-medium">Statut :</span> <StatusBadge status={profileStatus} />
                   </p>
@@ -229,7 +229,7 @@ export default function OnlineDriversPage() {
         }));
         setDrivers(mapped);
       } catch (e: any) {
-        setError(e?.response?.data?.message || "Erreur de chargement des chauffeurs en ligne");
+        setError(e?.response?.data?.message || "Erreur de chargement des zems en ligne");
       } finally {
         setLoading(false);
       }
@@ -238,22 +238,22 @@ export default function OnlineDriversPage() {
   }, [filter]);
 
   const handleForceOffline = async (id: number) => {
-    if (!window.confirm('Forcer ce chauffeur hors ligne ?')) return;
+    if (!window.confirm('Forcer ce zem hors ligne ?')) return;
     try {
       await api.post(`/api/admin/drivers/${id}/force-offline`);
       setDrivers((prev) => prev.map((d) => (d.id === id ? { ...d, is_online: false } : d)));
     } catch (e: any) {
-      alert(e?.response?.data?.message || "Impossible de forcer ce chauffeur hors ligne");
+      alert(e?.response?.data?.message || "Impossible de forcer ce zem hors ligne");
     }
   };
 
   const handleForceOnline = async (id: number) => {
-    if (!window.confirm('Forcer ce chauffeur en ligne ?')) return;
+    if (!window.confirm('Forcer ce zem en ligne ?')) return;
     try {
       await api.post(`/api/admin/drivers/${id}/force-online`);
       setDrivers((prev) => prev.map((d) => (d.id === id ? { ...d, is_online: true } : d)));
     } catch (e: any) {
-      alert(e?.response?.data?.message || "Impossible de forcer ce chauffeur en ligne");
+      alert(e?.response?.data?.message || "Impossible de forcer ce zem en ligne");
     }
   };
 
@@ -273,7 +273,7 @@ export default function OnlineDriversPage() {
         <div>
           <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Activité de la Flotte</h2>
           <p className="text-sm text-gray-500 mt-1">
-            Supervision opérationnelle des chauffeurs en temps réel.
+            Supervision opérationnelle des zems en temps réel.
           </p>
         </div>
         <div className="flex bg-gray-100/80 p-1 rounded-xl">
@@ -316,7 +316,7 @@ export default function OnlineDriversPage() {
       {!loading && drivers.length === 0 ? (
         <div className="text-center p-12 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
           <UserCheck size={48} className="mx-auto text-green-500" />
-          <h3 className="mt-4 text-lg font-bold text-gray-800">Aucun chauffeur trouvé</h3>
+          <h3 className="mt-4 text-lg font-bold text-gray-800">Aucun zem trouvé</h3>
           <p className="mt-2 text-sm text-gray-500">Essayez de modifier vos filtres.</p>
         </div>
       ) : (

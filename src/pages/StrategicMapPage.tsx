@@ -97,8 +97,8 @@ export default function StrategicMapPage() {
 
       {data && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <KpiPill icon={UserCheck} label="Chauffeurs disponibles" value={data.summary.available_drivers} tone="bg-green-50 text-green-600" />
-          <KpiPill icon={Car} label="Chauffeurs occupés" value={data.summary.busy_drivers} tone="bg-amber-50 text-amber-600" />
+          <KpiPill icon={UserCheck} label="Zems disponibles" value={data.summary.available_drivers} tone="bg-green-50 text-green-600" />
+          <KpiPill icon={Car} label="Zems occupés" value={data.summary.busy_drivers} tone="bg-amber-50 text-amber-600" />
           <KpiPill icon={MapPin} label="Demandes en attente" value={data.summary.pending_requests} tone="bg-red-50 text-red-600" />
           <KpiPill icon={Clock} label="Temps moyen d'attente" value={fmtWait(data.summary.avg_wait_seconds)} tone="bg-orange-50 text-orange-600" />
         </div>
@@ -128,7 +128,7 @@ export default function StrategicMapPage() {
               />
             </Source>
 
-            {/* Chauffeurs */}
+            {/* Zems */}
             {data?.drivers.map((d) => (
               <Marker key={`drv-${d.id}`} longitude={d.lng} latitude={d.lat} anchor="center"
                 onClick={(e) => { e.originalEvent.stopPropagation(); setPopup({ kind: 'driver', data: d }); }}>
@@ -174,8 +174,8 @@ export default function StrategicMapPage() {
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
             <h3 className="text-sm font-bold text-gray-900 mb-3">Légende</h3>
             <ul className="space-y-2 text-sm text-gray-600">
-              <li className="flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-green-600" /> Chauffeur disponible</li>
-              <li className="flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-amber-600" /> Chauffeur en course</li>
+              <li className="flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-green-600" /> Zem disponible</li>
+              <li className="flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-amber-600" /> Zem en course</li>
               <li className="flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-red-600" /> Demande en attente</li>
               <li className="flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-amber-400/40 border border-amber-500" /> Zone à forte demande</li>
               <li className="flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-red-400/30 border border-red-600 border-dashed" /> Zone sous-desservie</li>
@@ -189,7 +189,7 @@ export default function StrategicMapPage() {
               {zonesToWatch.map((z, i) => (
                 <div key={i} className={`p-2.5 rounded-lg border text-xs ${z.underserved ? 'bg-red-50 border-red-200' : 'bg-amber-50 border-amber-200'}`}>
                   <div className="font-bold text-gray-800">{z.underserved ? '⚠️ Sous-desservie' : '🔥 Forte demande'}</div>
-                  <div className="text-gray-600 mt-0.5">{z.demand} demande(s) · {z.available_drivers} chauffeur(s) dispo</div>
+                  <div className="text-gray-600 mt-0.5">{z.demand} demande(s) · {z.available_drivers} zem(s) dispo</div>
                   <div className="text-gray-400 mt-0.5">{z.lat.toFixed(3)}, {z.lng.toFixed(3)}</div>
                 </div>
               ))}

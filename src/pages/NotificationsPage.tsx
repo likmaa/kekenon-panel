@@ -19,8 +19,8 @@ type CampaignNotification = {
 const TARGET_LABELS: Record<string, string> = {
   all_passengers: 'Tous les passagers',
   active_passengers: 'Passagers actifs (30 j.)',
-  all_drivers: 'Tous les chauffeurs',
-  active_drivers: 'Chauffeurs actifs',
+  all_drivers: 'Tous les zems',
+  active_drivers: 'Zems actifs',
 };
 
 // Composant pour un choix de canal (Push, Email, SMS)
@@ -228,7 +228,7 @@ export default function NotificationsPage() {
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Communication</h1>
-          <p className="text-gray-500 mt-2 text-lg">Gérez vos campagnes de notifications et le contenu chauffeur.</p>
+          <p className="text-gray-500 mt-2 text-lg">Gérez vos campagnes de notifications et le contenu zem.</p>
         </div>
         <div className="flex items-center gap-3">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-50 text-green-700 text-sm font-medium rounded-full border border-green-200">
@@ -321,8 +321,8 @@ export default function NotificationsPage() {
                     <Users size={24} />
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold text-gray-900">Conseil du Jour Chauffeur</h2>
-                    <p className="text-gray-500 text-sm mt-0.5">S'affiche en tête du tableau de bord chauffeur</p>
+                    <h2 className="text-xl font-bold text-gray-900">Conseil du jour zem</h2>
+                    <p className="text-gray-500 text-sm mt-0.5">S'affiche en tête du tableau de bord zem</p>
                   </div>
                 </div>
                 {loadingTip && (
@@ -419,7 +419,7 @@ export default function NotificationsPage() {
                       type="text"
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
-                      placeholder="Ex: Bonus chauffeur disponible 🎁"
+                      placeholder="Ex: Bonus zem disponible 🎁"
                       className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all outline-none font-medium"
                     />
                   </div>
@@ -481,9 +481,9 @@ export default function NotificationsPage() {
                         <option value="all_passengers">Tous les passagers</option>
                         <option value="active_passengers">Passagers actifs (30 derniers jours)</option>
                       </optgroup>
-                      <optgroup label="Chauffeurs">
-                        <option value="all_drivers">Tous les chauffeurs</option>
-                        <option value="active_drivers">Chauffeurs actifs</option>
+                      <optgroup label="Zems">
+                        <option value="all_drivers">Tous les zems</option>
+                        <option value="active_drivers">Zems actifs</option>
                       </optgroup>
                     </select>
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
@@ -593,7 +593,7 @@ export default function NotificationsPage() {
               <strong>boîte Notifications</strong> de chaque passager concerné (badge en haut de l’accueil + liste Notifications).
             </p>
             <p className="mt-2 text-emerald-900/90">
-              Ciblage chauffeurs : pas d’inbox passager. Pour un seul passager :{' '}
+              Ciblage zems : pas d’inbox passager. Pour un seul passager :{' '}
               <Link to="/dev/passenger-inbox" className="font-semibold text-primary underline underline-offset-2 hover:opacity-90">
                 Inbox app passager
               </Link>

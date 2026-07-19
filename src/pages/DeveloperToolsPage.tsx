@@ -305,7 +305,7 @@ export default function DeveloperToolsPage() {
                 <li>Supprimer toutes les transactions wallet</li>
                 <li>Supprimer tous les avis (ratings)</li>
                 <li>Remettre les soldes des portefeuilles à 0</li>
-                <li className="font-bold">GARDERA les comptes utilisateurs (chauffeurs & passagers)</li>
+                <li className="font-bold">GARDERA les comptes utilisateurs (zems & passagers)</li>
               </ul>
             </div>
 
@@ -341,5 +341,4 @@ export default function DeveloperToolsPage() {
     </div>
   )
 }
-
 

@@ -146,7 +146,7 @@ export default function FleetManagementPage() {
       const rawId = driverIdForDocs.trim();
       const driverId = rawId ? Number(rawId) : null;
       if (rawId && (!Number.isInteger(driverId) || (driverId as number) <= 0)) {
-        setDocError('Veuillez saisir un ID chauffeur valide (entier > 0).');
+        setDocError('Veuillez saisir un ID zem valide (entier > 0).');
         setDriverDocsLoading(false);
         return;
       }
@@ -156,7 +156,7 @@ export default function FleetManagementPage() {
       const rows = Array.isArray(res.data?.items) ? res.data.items : [];
       setDriverDocs(rows);
     } catch (e: any) {
-      setDocError(e?.response?.data?.message || 'Erreur lors du chargement des documents chauffeur');
+      setDocError(e?.response?.data?.message || 'Erreur lors du chargement des documents zem');
     } finally {
       setDriverDocsLoading(false);
     }
@@ -189,7 +189,7 @@ export default function FleetManagementPage() {
       {/* En-tête de la page */}
       <header>
         <h1 className="text-2xl font-bold text-gray-900">Gestion de la Flotte</h1>
-        <p className="text-sm text-gray-500 mt-1">Visualisez, recherchez et gérez l'ensemble de vos chauffeurs.</p>
+        <p className="text-sm text-gray-500 mt-1">Visualisez, recherchez et gérez l'ensemble de vos zems.</p>
       </header>
 
       {/* §20.7 — Rentabilité par véhicule */}
@@ -197,7 +197,7 @@ export default function FleetManagementPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <div>
             <h2 className="text-lg font-semibold text-gray-900">Rentabilité par véhicule</h2>
-            <p className="text-sm text-gray-500">CA généré, commission plateforme et gains chauffeur par véhicule.</p>
+            <p className="text-sm text-gray-500">CA généré, commission plateforme et gains zem par véhicule.</p>
           </div>
           <div className="flex gap-2 items-center">
             <div className="flex gap-1 bg-gray-100 p-1 rounded-lg">
@@ -214,7 +214,7 @@ export default function FleetManagementPage() {
             <button
               onClick={() => exportToCsv(
                 `rentabilite-flotte-${fleetPeriod}j`,
-                ['Chauffeur', 'Plaque', 'Véhicule', 'Courses', 'CA généré', 'Commission plateforme', 'Gains chauffeur', 'Distance (km)'],
+                ['Zem', 'Plaque', 'Véhicule', 'Courses', 'CA généré', 'Commission plateforme', 'Gains zem', 'Distance (km)'],
                 fleetRows.map((r) => [r.driver_name, r.license_plate ?? '', r.vehicle ?? '', r.rides_count, r.gross_revenue, r.platform_commission, r.driver_earnings, r.distance_km]),
               )}
               disabled={fleetRows.length === 0}
@@ -229,7 +229,7 @@ export default function FleetManagementPage() {
           <table className="min-w-full text-sm">
             <thead className="bg-gray-50">
               <tr>
-                {['Véhicule / Chauffeur', 'Courses', 'CA généré', 'Commission', 'Gains chauffeur', 'Distance'].map((h) => (
+                {['Véhicule / zem', 'Courses', 'CA généré', 'Commission', 'Gains zem', 'Distance'].map((h) => (
                   <th key={h} className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{h}</th>
                 ))}
               </tr>
@@ -259,7 +259,7 @@ export default function FleetManagementPage() {
 
       {/* Carte principale contenant les outils et le tableau */}
       <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-        {loading && <p className="text-sm text-gray-500">Chargement des chauffeurs...</p>}
+        {loading && <p className="text-sm text-gray-500">Chargement des zems...</p>}
         {error && <p className="text-sm text-red-600 mb-2">{error}</p>}
         {/* Barre d'outils : Recherche, Filtres, Actions */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
@@ -286,17 +286,17 @@ export default function FleetManagementPage() {
             </select>
             <button className="flex items-center justify-center gap-2 w-full md:w-auto px-4 py-2 bg-primary text-marine rounded-lg hover:bg-primary-dark transition-colors font-bold">
               <PlusCircle size={18} />
-              <span className="hidden sm:inline">Ajouter un chauffeur</span>
+              <span className="hidden sm:inline">Ajouter un zem</span>
             </button>
           </div>
         </div>
 
-        {/* Tableau des chauffeurs */}
+        {/* Tableau des zems */}
         <div className="overflow-x-auto">
           <table className="min-w-full bg-white">
             <thead className="bg-gray-50">
               <tr>
-                {['Chauffeur', 'Véhicule', 'Note', 'Statut', 'Actions'].map((header) => (
+                {['Zem', 'Véhicule', 'Note', 'Statut', 'Actions'].map((header) => (
                   <th key={header} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     {header}
                   </th>
@@ -338,16 +338,16 @@ export default function FleetManagementPage() {
         {filteredData.length === 0 && (
           <div className="text-center p-10">
             <User size={48} className="mx-auto text-gray-400" />
-            <h3 className="mt-4 text-lg font-semibold text-gray-800">Aucun chauffeur trouvé</h3>
+            <h3 className="mt-4 text-lg font-semibold text-gray-800">Aucun zem trouvé</h3>
             <p className="mt-1 text-sm text-gray-500">Essayez d'ajuster votre recherche ou vos filtres.</p>
           </div>
         )}
       </div>
 
       <div className="bg-indigo-50 border border-indigo-200 p-4 rounded-lg">
-        <p className="font-semibold text-indigo-900 mb-1">Documents chauffeurs (envoyés depuis l’app)</p>
+        <p className="font-semibold text-indigo-900 mb-1">Documents zems (envoyés depuis l’app)</p>
         <p className="text-sm text-indigo-800 mb-3">
-          Recherche tous les documents soumis, ou filtre un chauffeur précis avec son ID.
+          Recherche tous les documents soumis, ou filtre un zem précis avec son ID.
         </p>
         <div className="flex flex-col sm:flex-row gap-2 mb-3">
           <input
@@ -355,7 +355,7 @@ export default function FleetManagementPage() {
             min={1}
             value={driverIdForDocs}
             onChange={(e) => setDriverIdForDocs(e.target.value)}
-            placeholder="ID chauffeur (optionnel)"
+            placeholder="ID zem (optionnel)"
             className="w-full sm:w-64 border border-indigo-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
           <button
@@ -374,7 +374,7 @@ export default function FleetManagementPage() {
             {driverDocs.map((row) => (
               <div key={row.driver_id} className="bg-white border border-indigo-100 rounded-lg p-3">
                 <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm mb-2">
-                  <span className="font-semibold text-gray-900">#{row.driver_id} {row.driver_name || 'Chauffeur'}</span>
+                  <span className="font-semibold text-gray-900">#{row.driver_id} {row.driver_name || 'Zem'}</span>
                   <span className="text-gray-600">{row.driver_phone || 'Téléphone non renseigné'}</span>
                   <span className="text-gray-500">Statut: {row.driver_status || '—'}</span>
                 </div>

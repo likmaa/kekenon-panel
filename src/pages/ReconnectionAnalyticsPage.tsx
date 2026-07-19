@@ -167,7 +167,7 @@ export default function ReconnectionAnalyticsPage() {
           <div className="grid grid-cols-2 gap-4">
             <div className="p-4 bg-amber-50 rounded-lg">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-700">App Chauffeur</span>
+                <span className="text-sm font-medium text-gray-700">App zem</span>
                 <span className="text-lg font-bold text-amber-600">{stats.byAppType.driver}</span>
               </div>
               <div className="w-full bg-amber-200 rounded-full h-2">
@@ -231,7 +231,7 @@ export default function ReconnectionAnalyticsPage() {
                             : 'bg-green-100 text-green-800'
                         }`}
                       >
-                        {event.app_type === 'driver' ? 'Chauffeur' : 'Passager'}
+                        {event.app_type === 'driver' ? 'Zem' : 'Passager'}
                       </span>
                     </td>
                     <td className="py-3 px-4 text-gray-600">

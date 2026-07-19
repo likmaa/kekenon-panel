@@ -42,6 +42,14 @@ interface PricingConfig {
     driver_effective_fee_per_ride: number;
     expected_platform_revenue_per_ride: number;
   };
+  delivery: {
+    small_fee: number;
+    medium_fee: number;
+    large_fee: number;
+    fragile_fee: number;
+    weight_threshold_kg: number;
+    extra_kg_fee: number;
+  };
 }
 
 // Props typées pour le composant PricingInput
@@ -124,6 +132,14 @@ export default function PricingConfigPage() {
             driver_pack_rides: Number(data.business_model?.driver_pack_rides ?? 10),
             driver_effective_fee_per_ride: Number(data.business_model?.driver_effective_fee_per_ride ?? 50),
             expected_platform_revenue_per_ride: Number(data.business_model?.expected_platform_revenue_per_ride ?? 100),
+          },
+          delivery: {
+            small_fee: Number(data.delivery?.small_fee ?? 0),
+            medium_fee: Number(data.delivery?.medium_fee ?? 200),
+            large_fee: Number(data.delivery?.large_fee ?? 500),
+            fragile_fee: Number(data.delivery?.fragile_fee ?? 200),
+            weight_threshold_kg: Number(data.delivery?.weight_threshold_kg ?? 5),
+            extra_kg_fee: Number(data.delivery?.extra_kg_fee ?? 100),
           },
         });
       } catch (e: any) {
@@ -286,7 +302,7 @@ export default function PricingConfigPage() {
                 unit="FCFA/min"
                 value={config.stop_rate_per_min}
                 onChange={e => setConfig({ ...config, stop_rate_per_min: parseFloat(e.target.value) })}
-                description="Facturé uniquement quand le chauffeur active le bouton 'Arrêt'."
+                description="Facturé uniquement quand le zem active le bouton 'Arrêt'."
               />
             </div>
 
@@ -455,6 +471,35 @@ export default function PricingConfigPage() {
                   onChange={e => setConfig({ ...config, weather: { ...config.weather, multiplier: parseFloat(e.target.value) } })}
                 />
               )}
+            </div>
+          </div>
+
+          <div className="lg:col-span-2 bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-5">
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">suppléments livraison</h2>
+              <p className="text-sm text-gray-500">Ajoutés à la grille zem standard selon le colis déclaré.</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {([
+                ['small_fee', 'Petit colis', 'Enveloppe ou petit paquet.'],
+                ['medium_fee', 'Colis moyen', 'Format standard de livraison.'],
+                ['large_fee', 'Grand colis', 'Format encombrant accepté sur zem.'],
+                ['fragile_fee', 'Option fragile', 'Manipulation renforcée.'],
+                ['weight_threshold_kg', 'Poids inclus', 'Seuil avant supplément par kilo.'],
+                ['extra_kg_fee', 'Kilo supplémentaire', 'Facturé par kilo entier au-delà du seuil.'],
+              ] as const).map(([key, label, description]) => (
+                <PricingInput
+                  key={key}
+                  label={label}
+                  unit={key === 'weight_threshold_kg' ? 'kg' : 'FCFA'}
+                  value={config.delivery[key]}
+                  onChange={e => setConfig({
+                    ...config,
+                    delivery: { ...config.delivery, [key]: Math.max(0, parseInt(e.target.value) || 0) },
+                  })}
+                  description={description}
+                />
+              ))}
             </div>
           </div>
 

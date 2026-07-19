@@ -205,7 +205,7 @@ export default function PassengersDetailsPage() {
                       <th className="px-4 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">Montant</th>
                       <th className="px-4 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">Distance</th>
                       <th className="px-4 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">Durée</th>
-                      <th className="px-4 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">Chauffeur</th>
+                      <th className="px-4 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">Zem</th>
                       <th className="px-4 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">Créée le</th>
                       <th className="px-4 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">Terminée le</th>
                     </tr>

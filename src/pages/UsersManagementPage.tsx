@@ -350,7 +350,7 @@ export default function UsersManagementPage() {
                 >
                   <option value="admin">Admin</option>
                   <option value="developer">Développeur</option>
-                  <option value="driver">Chauffeur</option>
+                  <option value="driver">Zem</option>
                   <option value="passenger">Passager</option>
                 </select>
               </div>
@@ -435,7 +435,7 @@ export default function UsersManagementPage() {
                 >
                   <option value="admin">Admin</option>
                   <option value="developer">Développeur</option>
-                  <option value="driver">Chauffeur</option>
+                  <option value="driver">Zem</option>
                   <option value="passenger">Passager</option>
                 </select>
               </div>
@@ -462,4 +462,3 @@ export default function UsersManagementPage() {
     </div>
   )
 }
-

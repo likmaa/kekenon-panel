@@ -283,7 +283,7 @@ export default function CreateRidePage() {
               {created ? <><CheckCircle size={16} /> Course créée</> : creating ? <Loader2 size={16} className="animate-spin" /> : 'Créer la course'}
             </button>
           </div>
-          <p className="text-[11px] text-gray-400">La création envoie la demande aux chauffeurs proches (statut « en attente »).</p>
+          <p className="text-[11px] text-gray-400">La création envoie la demande aux zems proches (statut « en attente »).</p>
         </div>
 
         {/* Map */}

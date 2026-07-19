@@ -11,7 +11,7 @@ const CATEGORY_TITLES: Record<string, string> = {
   refused: 'Courses refusées',
   expired: 'Courses expirées (timeout)',
   cancelled: 'Courses annulées',
-  no_driver: 'Sans chauffeur (en attente)',
+  no_driver: 'Sans zem (en attente)',
 };
 
 const fmtDateTime = (iso: string | null): { date: string; time: string } => {
@@ -28,6 +28,7 @@ interface RideRow {
   passenger_name: string | null;
   passenger_phone: string | null;
   driver_name: string | null;
+  service_type: 'course' | 'livraison';
   pickup_address: string | null;
   dropoff_address: string | null;
   fare: number;
@@ -94,10 +95,10 @@ export default function RidesHistoryPage() {
           </button>
           <button
             onClick={() => exportToCsv(`courses-${category}-${from}_${to}`,
-              ['ID', 'Passager', 'Téléphone', 'Chauffeur', 'Départ', 'Arrivée', 'Approche (km)', 'Distance (km)', 'Durée (min)', 'Montant', 'Date', 'Heure'],
+              ['ID', 'Service', 'Passager', 'Téléphone', 'Zem', 'Départ', 'Arrivée', 'Approche (km)', 'Distance (km)', 'Durée (min)', 'Montant', 'Date', 'Heure'],
               rows.map((r) => {
                 const dt = fmtDateTime(r.datetime);
-                return [r.id, r.passenger_name ?? '', r.passenger_phone ?? '', r.driver_name ?? '', r.pickup_address ?? '', r.dropoff_address ?? '', r.approach_km ?? '', r.ride_km ?? '', r.duration_min ?? '', r.fare, dt.date, dt.time];
+                return [r.id, r.service_type === 'livraison' ? 'Livraison' : 'Course', r.passenger_name ?? '', r.passenger_phone ?? '', r.driver_name ?? '', r.pickup_address ?? '', r.dropoff_address ?? '', r.approach_km ?? '', r.ride_km ?? '', r.duration_min ?? '', r.fare, dt.date, dt.time];
               }))}
             disabled={rows.length === 0}
             className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-bold hover:bg-emerald-700 disabled:opacity-50"
@@ -115,7 +116,7 @@ export default function RidesHistoryPage() {
             <table className="min-w-full text-sm">
               <thead className="bg-gray-50">
                 <tr>
-                  {['#', 'Passager', 'Chauffeur', 'Trajet'].map((h) => (
+                  {['#', 'Service', 'Passager', 'Zem', 'Trajet'].map((h) => (
                     <th key={h} className="px-3 py-2.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{h}</th>
                   ))}
                   {showMetrics && (
@@ -140,6 +141,11 @@ export default function RidesHistoryPage() {
                       className="cursor-pointer hover:bg-primary/5 transition-colors"
                     >
                       <td className="px-3 py-2.5 text-gray-500">#{r.id}</td>
+                      <td className="px-3 py-2.5">
+                        <span className={`rounded-full px-2 py-1 text-[11px] font-bold ${r.service_type === 'livraison' ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-700'}`}>
+                          {r.service_type === 'livraison' ? 'Livraison' : 'Course'}
+                        </span>
+                      </td>
                       <td className="px-3 py-2.5">
                         <div className="font-medium text-gray-900">{r.passenger_name || '—'}</div>
                         <div className="text-xs text-gray-400">{r.passenger_phone || ''}</div>
